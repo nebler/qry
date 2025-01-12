@@ -7,7 +7,9 @@
 
 int main() {
   Lexer lexer = Lexer(std::cin);
+
   Parser parser = Parser(&lexer);
+
   parser.MainLoop();
   return 0;
 }

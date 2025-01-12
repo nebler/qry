@@ -38,7 +38,6 @@ private:
 public:
   Parser(Lexer *lex) : lexer(lex) {
     // Prime the first token
-    currentToken = lexer->gettok();
     BinopPrecedence['<'] = 10;
     BinopPrecedence['+'] = 20;
     BinopPrecedence['-'] = 20;

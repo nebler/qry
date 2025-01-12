@@ -227,6 +227,8 @@ void Parser::HandleTopLevelExpression() {
 
 /// top ::= definition | external | expression | ';'
 void Parser::MainLoop() {
+  fprintf(stderr, "ready>");
+  getNextToken();
   while (true) {
     switch (currentToken) {
     case tok_eof:
