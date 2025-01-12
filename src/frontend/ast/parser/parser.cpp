@@ -1,6 +1,7 @@
 #include "Parser.hpp"
 #include <iostream>
 #include <memory>
+#include "../types/Types.hpp"
 
 std::map<char, int> Parser::BinopPrecedence;
 
@@ -40,8 +41,9 @@ std::unique_ptr<ExprAST> Parser::ParseIdentifierExpr() {
 
   getNextToken(); // eat identifier.
 
-  if (currentToken != '(') // Simple variable ref.
-    return std::make_unique<VariableExprAST>(IdName);
+  if (currentToken != '(') {
+      return std::make_unique<VariableExprAST>(IdName, TypeKind::IntegerType);
+  }
 
   // Call.
   getNextToken(); // eat (
@@ -238,15 +240,12 @@ void Parser::MainLoop() {
       getNextToken();
       break;
     case tok_def:
-
       HandleDefinition();
       break;
     case tok_extern:
-
       HandleExtern();
       break;
     default:
-
       HandleTopLevelExpression();
       break;
     }

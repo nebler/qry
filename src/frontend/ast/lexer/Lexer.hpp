@@ -10,7 +10,7 @@ private:
   int lastChar;              // Track last character read
   std::string identifierStr; // Current identifier
   double numVal;             // Current number value
-
+  int peek();
   // Helper method to get next character
   int advance();
 
@@ -21,6 +21,9 @@ public:
   // Token getters
   std::string getIdentifierStr() const { return identifierStr; }
   double getNumVal() const { return numVal; }
+
+
+
 
   void setIdentifierStr(const std::string &str) { identifierStr = str; }
 
