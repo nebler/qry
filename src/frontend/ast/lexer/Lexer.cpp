@@ -25,7 +25,6 @@ int Lexer::gettok() {
       return tok_extern;
     }
 
-    std::cout << "Identifier:" << tok_identifier << std::endl;
     return tok_identifier;
   }
 
@@ -37,9 +36,7 @@ int Lexer::gettok() {
       lastChar = advance();
     } while (isdigit(lastChar) || lastChar == '.');
 
-    numVal = strtod(numStr.c_str(), nullptr);
-    std::cout << "Number:" << numVal << std::endl;
-
+    setNumVal(strtod(numStr.c_str(), nullptr));
     return tok_number;
   }
 

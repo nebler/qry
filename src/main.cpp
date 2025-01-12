@@ -1,17 +1,13 @@
 #include "frontend/ast/lexer/Lexer.hpp"
+#include "frontend/ast/parser/Parser.hpp"
 #include <iostream>
 #include <sstream>
 
-int main() {
-  std::istringstream input("def foo(x) 42.0");
-  Lexer lexer = Lexer(input);
-  lexer.gettok();
-  lexer.gettok();
-  lexer.gettok();
-  lexer.gettok();
-  lexer.gettok();
-  lexer.gettok();
-  lexer.gettok();
+#include <iostream>
 
+int main() {
+  Lexer lexer = Lexer(std::cin);
+  Parser parser = Parser(&lexer);
+  parser.MainLoop();
   return 0;
 }

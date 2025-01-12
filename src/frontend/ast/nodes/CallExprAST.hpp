@@ -1,3 +1,4 @@
+#pragma once
 #include "ExprAST.hpp"
 #include <string>
 #include <vector>

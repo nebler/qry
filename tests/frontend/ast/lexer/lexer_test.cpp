@@ -93,3 +93,64 @@ TEST(Lexer, allTokens) {
   int tokEOFOut = lexer.gettok();
   EXPECT_EQ(tok_eof, tokEOFOut);
 }
+
+TEST(Lexer, moreComplexFunction) {
+
+  std::istringstream input("def foo(x y) x+foo(y, 4.0);");
+
+  Lexer lexer = Lexer(input);
+  int tokDefOutput = lexer.gettok();
+  EXPECT_EQ(tok_def, tokDefOutput);
+
+  int tokIndentifierOutputFoo = lexer.gettok();
+  EXPECT_EQ(tok_identifier, tokIndentifierOutputFoo);
+  EXPECT_EQ("foo", lexer.getIdentifierStr());
+
+  int tokIdentifierBracesOpen = lexer.gettok();
+  EXPECT_EQ('(', tokIdentifierBracesOpen);
+
+  int tokIndentifierOutputX = lexer.gettok();
+  EXPECT_EQ(tok_identifier, tokIndentifierOutputX);
+  EXPECT_EQ("x", lexer.getIdentifierStr());
+
+  int tokIndentifierOutputY = lexer.gettok();
+  EXPECT_EQ(tok_identifier, tokIndentifierOutputY);
+  EXPECT_EQ("y", lexer.getIdentifierStr());
+
+  int tokIdentifierBracesClose = lexer.gettok();
+  EXPECT_EQ(')', tokIdentifierBracesClose);
+
+  int tokIndentifierOutputX2 = lexer.gettok();
+  EXPECT_EQ(tok_identifier, tokIndentifierOutputX2);
+  EXPECT_EQ("x", lexer.getIdentifierStr());
+
+  int plus = lexer.gettok();
+  EXPECT_EQ('+', plus);
+
+  int tokIndentifierOutputFoo2 = lexer.gettok();
+  EXPECT_EQ(tok_identifier, tokIndentifierOutputFoo2);
+  EXPECT_EQ("foo", lexer.getIdentifierStr());
+
+  int tokIdentifierBracesOpen2 = lexer.gettok();
+  EXPECT_EQ('(', tokIdentifierBracesOpen2);
+
+  int tokIndentifierOutputY2 = lexer.gettok();
+  EXPECT_EQ(tok_identifier, tokIndentifierOutputY2);
+  EXPECT_EQ("y", lexer.getIdentifierStr());
+
+  int tokIdentifierComma = lexer.gettok();
+  EXPECT_EQ(',', tokIdentifierComma);
+
+  int tokenNumberOutput = lexer.gettok();
+  EXPECT_EQ(tok_number, tokenNumberOutput);
+  EXPECT_EQ(4, lexer.getNumVal());
+
+  int tokIdentifierBracesClose2 = lexer.gettok();
+  EXPECT_EQ(')', tokIdentifierBracesClose2);
+
+  int tokIdentifierSemicolon = lexer.gettok();
+  EXPECT_EQ(';', tokIdentifierSemicolon);
+
+  int tokEOFOut = lexer.gettok();
+  EXPECT_EQ(tok_eof, tokEOFOut);
+}
