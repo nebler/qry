@@ -11,19 +11,33 @@ int Lexer::advance() { return input->get(); }
     returns the next character without eating it.
 */
 int Lexer::peek() {
-    // Save current position
-    // tellg gives me the current position
-    int pos = input->tellg();
-    // Get next character
-    int nextChar = input->get();
-    // Restore position
-    // seekg puts the position back to where it was before
-    input->seekg(pos);
-    return nextChar;
+  // Save current position
+  // tellg gives me the current position
+  int pos = input->tellg();
+  // Get next character
+  int nextChar = input->get();
+  // Restore position
+  // seekg puts the position back to where it was before
+  input->seekg(pos);
+  return nextChar;
 }
 
+Token Lexer::lookAhead(int distance) {
+  // Save current position
+  // tellg gives me the current position
+  int pos = input->tellg();
+  // Get next character
+  Token token;
+  for (int i = 0; i < distance; i++) {
+    token = gettok();
+  }
+  // Restore position
+  // seekg puts the position back to where it was before
+  input->seekg(pos);
+  return token;
+}
 
-int Lexer::gettok() {
+Token Lexer::gettok() {
   // Skip whitespace
   while (isspace(lastChar)) {
     lastChar = advance();
@@ -47,7 +61,7 @@ int Lexer::gettok() {
     if (identifierStr == "bool" && !isalnum(peek())) {
       return tok_bool;
     }
-    if (identifierStr == "float"&& !isalnum(peek())) {
+    if (identifierStr == "float" && !isalnum(peek())) {
       return tok_float;
     }
 
@@ -73,7 +87,9 @@ int Lexer::gettok() {
   }
 
   // Otherwise, return the character as its ASCII value
-  int thisChar = lastChar;
-  lastChar = advance();
-  return thisChar;
+  // int thisChar = lastChar;
+  // lastChar = advance();
+  // Maybe we should return something else here? Maybe tokens should actually
+  // hold some type of value?
+  return tok_undefined;
 }

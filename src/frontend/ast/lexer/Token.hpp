@@ -8,7 +8,10 @@ enum Token {
   tok_extern = -3,
   tok_identifier = -4,
   tok_number = -5,
-
+  tok_comma = ',', // 44
+  tok_right_paren = ')',
+  tok_right_paren = '(',
+  tok_undefined = -999,
   tok_int = -100,
   tok_bool = -101,
   tok_float = -102

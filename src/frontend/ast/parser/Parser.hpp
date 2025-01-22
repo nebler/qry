@@ -1,13 +1,9 @@
 #pragma once
 
 #include "../lexer/Lexer.hpp"
-#include "../nodes/BinaryExprAST.hpp"
-#include "../nodes/CallExprAST.hpp"
-#include "../nodes/ExprAST.hpp"
-#include "../nodes/FunctionAST.hpp"
-#include "../nodes/NumberExprAst.hpp"
-#include "../nodes/PrototypeAST.hpp"
-#include "../nodes/VariableExprAst.hpp"
+#include "../nodes/Expr.hpp"
+#include "InfixParslet.hpp"
+#include "PrefixParselet.hpp"
 #include <iostream>
 #include <map>
 #include <memory>
@@ -15,48 +11,77 @@
 class Parser {
 private:
   Lexer *lexer;
-  int currentToken; // Stores the current token we're looking at
-  static std::map<char, int> BinopPrecedence;
-  // Helper methods for parsing different constructs
-  std::unique_ptr<ExprAST> ParseNumberExpr();
-  std::unique_ptr<ExprAST> ParseParenExpr();
-  std::unique_ptr<ExprAST> ParseIdentifierExpr();
-  std::unique_ptr<ExprAST> ParsePrimary();
-  std::unique_ptr<ExprAST> ParseExpression();
-  std::unique_ptr<PrototypeAST> ParsePrototype();
-  std::unique_ptr<FunctionAST> ParseDefinition();
-  std::unique_ptr<PrototypeAST> ParseExtern();
-  std::unique_ptr<FunctionAST> ParseTopLevelExpr();
-  std::unique_ptr<ExprAST> LogError(const char *Str);
-  std::unique_ptr<PrototypeAST> LogErrorP(const char *Str);
-  void HandleDefinition();
-  void HandleExtern();
-  void HandleTopLevelExpression();
-  std::unique_ptr<ExprAST> ParseBinOpRHS(int ExprPrec,
-                                         std::unique_ptr<ExprAST> LHS);
+  Token currentToken; // Stores the current token we're looking at
+
+  std::unique_ptr<Expr> ParseBinOpRHS(int ExprPrec, std::unique_ptr<Expr> LHS);
 
 public:
-  Parser(Lexer *lex) : lexer(lex) {
-    // Prime the first token
-    BinopPrecedence['<'] = 10;
-    BinopPrecedence['+'] = 20;
-    BinopPrecedence['-'] = 20;
-    BinopPrecedence['*'] = 40; // highest.
+  Parser(Lexer *lex) : lexer(lex) {};
+
+  void registerParselet(Token token, std::unique_ptr<PrefixParselet> parselet) {
+    mPrefixParselets[token] = std::move(parselet);
   }
 
-  void MainLoop();
+  void registerParselet(Token token, std::unique_ptr<InfixParselet> parselet) {
+    mInfixParselets[token] = std::move(parselet);
+  }
+
+  std::string getIndentifierStr() { return lexer->getIdentifierStr(); }
+
   // Get the next token from the lexer
-  int getNextToken() {
+  Token getNextToken() {
     currentToken = lexer->gettok();
     return currentToken;
   }
 
-  // Get the next token from the lexer
-  int getBinopPrecedence(char operatorName) {
-    int TokPrec = BinopPrecedence[operatorName];
-    if (TokPrec <= 0) {
-      return -1;
+  std::unique_ptr<Expr> parseExpression(int precedence) {
+    Token token = consume();
+    auto it = mPrefixParselets.find(token);
+
+    PrefixParselet *prefix = it->second.get();
+
+    std::unique_ptr<Expr> left = prefix->parse(*this, token);
+
+    while (precedence < getPrecedence()) {
+      token = lexer->gettok();
+      token = consume();
+
+      InfixParselet *infix = mInfixParselets[token].get();
+      left = infix->parse(*this, std::move(left), token);
     }
-    return TokPrec;
+
+    return left;
+  }
+
+  std::unique_ptr<Expr> parseExpression() { return parseExpression(0); }
+
+  bool match(Token expected) { return expected == currentToken; }
+
+  Token consume(Token expected) {
+    Token token = currentToken;
+    // if (token != expected) {
+    //   throw ParseException("Expected token " + tokentype::toString(expected)
+    //   +
+    //                        " and found " +
+    //                        tokentype::toString(token.getType()));
+    // }
+
+    return consume();
+  }
+
+  Token consume() { return lexer->gettok(); }
+
+private:
+  std::map<Token, std::unique_ptr<PrefixParselet>> mPrefixParselets;
+  std::map<Token, std::unique_ptr<InfixParselet>> mInfixParselets;
+
+  Token lookAhead(unsigned int distance) { return lexer->lookAhead(distance); }
+
+  int getPrecedence() {
+    auto itParser = mInfixParselets.find(currentToken);
+    if (itParser != mInfixParselets.end())
+      return itParser->second->getPrecedence();
+
+    return 0;
   }
 };
