@@ -4,9 +4,8 @@ public:
   BinaryOperatorParselet(int precedence, bool isRight)
       : mPrecedence(precedence), mIsRight(isRight) {}
 
-  virtual std::unique_ptr<Expr> parse(Parser &parser,
-                                      std::unique_ptr<Expr> left,
-                                      Token token) const override {
+  virtual std::unique_ptr<Expr>
+  parse(Parser &parser, std::unique_ptr<Expr> left, int token) const override {
     // To handle right-associative operators like "^", we allow a slightly
     // lower precedence when parsing the right-hand side. This will let a
     // parselet with the same precedence appear on the right, which will then

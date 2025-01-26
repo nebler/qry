@@ -7,6 +7,6 @@
 class PrefixParselet {
 public:
   virtual ~PrefixParselet() = default;
-  virtual std::unique_ptr<Expr> parse(Parser &parser, Token token) const;
+  virtual std::unique_ptr<Expr> parse(Parser &parser, int token) const;
   virtual int getPrecedence() const;
 };

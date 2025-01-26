@@ -1,11 +1,11 @@
 #pragma once
 
+#include "../Precedence.hpp"
 #include "frontend/ast/parser/parslets/InfixParslet.hpp"
 class AssignParselet : public InfixParselet {
 public:
-  virtual std::unique_ptr<Expr> parse(Parser &parser,
-                                      std::unique_ptr<Expr> left,
-                                      Token /*token*/) const override {
+  virtual std::unique_ptr<Expr>
+  parse(Parser &parser, std::unique_ptr<Expr> left, Token /*token*/) {
     std::unique_ptr<Expr> right =
         parser.parseExpression(precedence::ASSIGNMENT - 1);
 
@@ -14,4 +14,4 @@ public:
     std::string name = leftNameExp->identifier;
     return std::unique_ptr<AssignExpr>(new AssignExpr(name, std::move(right)));
   }
-}
+};

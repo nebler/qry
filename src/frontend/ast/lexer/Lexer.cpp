@@ -80,6 +80,45 @@ Token Lexer::gettok() {
     return tok_number;
   }
 
+  if (identifierStr == "+") {
+    return tok_plus;
+  }
+
+  if (identifierStr == "-") {
+    return tok_minus;
+  }
+
+  if (identifierStr == ",") {
+    return tok_comma;
+  }
+
+  if (identifierStr == "*") {
+    return tok_asterix;
+  }
+
+  if (identifierStr == "^") {
+    return tok_caret;
+  }
+
+  if (identifierStr == "~") {
+    return tok_caret;
+  }
+
+  if (identifierStr == "!") {
+    return tok_bang;
+  }
+
+  if (identifierStr == "/") {
+    return tok_slash;
+  }
+
+  if (identifierStr == ")") {
+    return tok_right_paren;
+  }
+
+  if (identifierStr == "()") {
+    return tok_left_paren;
+  }
   // Check for end of file
   if (lastChar == EOF) {
     std::cout << "End of file" << std::endl;

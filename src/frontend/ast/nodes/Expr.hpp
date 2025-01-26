@@ -127,9 +127,9 @@ struct IdentifierExpr : Expr {
 
 struct PostfixExpr : Expr {
   std::unique_ptr<Expr> left;
-  Token operatorType;
+  int operatorType;
 
-  PostfixExpr(std::unique_ptr<Expr> left, Token operatorType)
+  PostfixExpr(std::unique_ptr<Expr> left, int operatorType)
       : left(std::move(left)), operatorType(operatorType) {};
 
   [[nodiscard]] auto kind() const -> ExprKind override {

@@ -1,4 +1,4 @@
-namespace Precedence {
+namespace precedence {
 
 // Ordered in increasing precedence.
 constexpr int ASSIGNMENT = 1;
@@ -10,4 +10,4 @@ constexpr int PREFIX = 6;
 constexpr int POSTFIX = 7;
 constexpr int CALL = 8;
 
-} // namespace Precedence
+} // namespace precedence

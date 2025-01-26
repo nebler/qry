@@ -5,9 +5,8 @@
  */
 #include "frontend/ast/parser/parslets/PrefixParselet.hpp"
 
-class NameParselet : public PrefixParselet {
-  virtual std::unique_ptr<Expr> parse(Parser &parser,
-                                      Token token) const override {
+class IdentifierParslet : public PrefixParselet {
+  std::unique_ptr<Expr> parse(Parser &parser, int token) const override {
     return std::unique_ptr<IdentifierExpr>(
         new IdentifierExpr(parser.getIndentifierStr()));
   }

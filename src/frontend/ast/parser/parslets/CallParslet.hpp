@@ -1,12 +1,12 @@
 #pragma once
 
+#include "../Precedence.hpp"
 #include "./InfixParslet.hpp"
 #include <list>
 
 class CallParselet : public InfixParselet {
-  virtual std::unique_ptr<Expr> parse(Parser &parser,
-                                      std::unique_ptr<Expr> left,
-                                      Token /*token*/) const override {
+  virtual std::unique_ptr<Expr>
+  parse(Parser &parser, std::unique_ptr<Expr> left, Token /*token*/) const {
     // Parse the comma-separated arguments until we hit, ")".
     std::vector<std::unique_ptr<Expr>> args;
 
