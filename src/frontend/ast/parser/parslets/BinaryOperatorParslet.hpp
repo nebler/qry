@@ -1,4 +1,6 @@
-#include "frontend/ast/parser/parslets/InfixParslet.hpp"
+#pragma once
+#include "InfixParslet.hpp"
+#include <memory>
 class BinaryOperatorParselet : public InfixParselet {
 public:
   BinaryOperatorParselet(int precedence, bool isRight)

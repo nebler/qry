@@ -2,11 +2,14 @@
 
 #include "../lexer/Lexer.hpp"
 #include "../nodes/Expr.hpp"
-#include "InfixParslet.hpp"
-#include "PrefixParselet.hpp"
-#include <iostream>
+
+#include "parslets/InfixParslet.hpp"
+#include "parslets/PrefixParselet.hpp"
 #include <map>
 #include <memory>
+
+class InfixParselet;
+
 
 class Parser {
 private:

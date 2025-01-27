@@ -1,7 +1,7 @@
+#include "../Precedence.hpp"
+#include "../Parser.hpp"
 #pragma once
 
-#include "../Precedence.hpp"
-#include "frontend/ast/parser/parslets/InfixParslet.hpp"
 class AssignParselet : public InfixParselet {
 public:
   virtual std::unique_ptr<Expr>

@@ -1,7 +1,10 @@
 #pragma once
 
-#include "../Parser.hpp"
 #include <memory>
+#include "../Parser.hpp"
+
+class Parser;
+
 
 // For tokens that appear in the middle
 class InfixParselet {

@@ -10,7 +10,7 @@ class PrefixOperatorParselet : public PrefixParselet {
 public:
   PrefixOperatorParselet(int precedence) : mPrecedence(precedence) {}
 
-  std::unique_ptr<Expr> parse(Parser &parser, Token token) {
+  std::unique_ptr<Expr> parse(Parser &parser, Token token) const override {
     std::unique_ptr<Expr> right = parser.parseExpression(mPrecedence);
 
     return std::unique_ptr<Expr>(new PrefixExpr(token, std::move(right)));

@@ -1,6 +1,6 @@
 // Lexer.cpp
 #include "Lexer.hpp"
-#include "frontend/ast/lexer/Token.hpp"
+#include "Token.hpp"
 #include <cctype>
 #include <iostream>
 

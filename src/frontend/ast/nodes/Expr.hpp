@@ -1,5 +1,5 @@
+#include "../lexer/Token.hpp"
 #include "../types/Types.hpp"
-#include "frontend/ast/lexer/Token.hpp"
 #include <memory>
 #include <string>
 // All possible types of expressions in our AST

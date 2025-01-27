@@ -1,7 +1,10 @@
 #include "Parser.hpp"
 #include "../types/Types.hpp"
 #include "./Precedence.hpp"
+#include "./parslets/BinaryOperatorParslet.hpp"
 #include "./parslets/IdentifierParslet.hpp"
+#include "./parslets/PostfixOperatorParslet.hpp"
+#include "./parslets/PrefixOperatorParslet.hpp"
 #include <iostream>
 
 #include <memory>
