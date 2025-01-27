@@ -1,5 +1,5 @@
-#include "frontend/ast/lexer/Lexer.hpp"
 #include "frontend/ast/lexer/Token.hpp"
+#include "frontend/ast/lexer/Lexer.hpp"
 #include <gtest/gtest.h>
 
 TEST(Lexer, defToken) {

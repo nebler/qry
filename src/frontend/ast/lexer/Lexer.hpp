@@ -2,7 +2,6 @@
 #pragma once
 #include "Token.hpp"
 #include <istream>
-#include <memory>
 #include <string>
 class Lexer {
 private:
