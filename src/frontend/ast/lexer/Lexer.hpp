@@ -1,8 +1,9 @@
 // Lexer.hpp
 #pragma once
-#include "Token.hpp"
+#include "frontend/ast/lexer/Token/Token.hpp"
 #include <istream>
 #include <string>
+
 class Lexer {
 private:
   std::istream *input;       // Input stream instead of using getchar()
@@ -12,6 +13,21 @@ private:
   // Helper method to get next character
   int advance();
   int peek();
+
+  // This is evaluated at compile time
+  static constexpr std::pair<const char *, TokenType> KEYWORD_TOKENS[] = {
+      {"def", tok_def},
+      {"extern", tok_extern},
+      {"int", tok_int},
+      {"bool", tok_bool},
+      {"float", tok_float}};
+  static constexpr std::pair<char, TokenType> CHAR_TOKENS[] = {
+      {'+', tok_plus},       {'-', tok_minus},      {',', tok_comma},
+      {'*', tok_asterix},    {'/', tok_slash},      {'^', tok_caret},
+      {'~', tok_tilde},      {'!', tok_bang},       {';', tok_semicolon},
+      {'(', tok_left_paren}, {')', tok_right_paren}};
+  Token findKeyWordToken(const char *key);
+  Token findCharToken(char key);
 
 public:
   // Constructor takes an input stream
