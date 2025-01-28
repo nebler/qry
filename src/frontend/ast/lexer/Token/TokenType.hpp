@@ -1,6 +1,6 @@
 #pragma once
 
-enum Token {
+enum TokenType {
   tok_eof = -1,
 
   // commands
@@ -8,7 +8,7 @@ enum Token {
   tok_extern = -3,
   tok_identifier = -4,
   tok_number = -5,
-  tok_comma = ',', // 44
+  tok_comma = ',',
   tok_right_paren = ')',
   tok_left_paren = '(',
   tok_plus = '+',
@@ -18,6 +18,7 @@ enum Token {
   tok_asterix = '*',
   tok_tilde = '~',
   tok_bang = '!',
+  tok_semicolon = ';',
   tok_undefined = -999,
   tok_int = -100,
   tok_bool = -101,

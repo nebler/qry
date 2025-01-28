@@ -1,40 +1,47 @@
 // Lexer.cpp
 #include "Lexer.hpp"
-#include "Token.hpp"
 #include <cctype>
 #include <iostream>
 
 int Lexer::advance() { return input->get(); }
 
-/*
-    simple peek method
-    returns the next character without eating it.
-*/
-int Lexer::peek() {
-  // Save current position
-  // tellg gives me the current position
+Token Lexer::lookAhead(int distance) {
   int pos = input->tellg();
-  // Get next character
-  int nextChar = input->get();
-  // Restore position
-  // seekg puts the position back to where it was before
-  input->seekg(pos);
-  return nextChar;
+
+  std::vector<Token> tokens;
+
+  for (int i = 0; i < distance; ++i) {
+    tokens.push_back(gettok());
+  }
+
+  if (tokens.empty()) {
+    throw std::out_of_range("No tokens available");
+  }
+
+  return tokens.back();
 }
 
-Token Lexer::lookAhead(int distance) {
-  // Save current position
-  // tellg gives me the current position
-  int pos = input->tellg();
-  // Get next character
-  Token token;
-  for (int i = 0; i < distance; i++) {
-    token = gettok();
+Token Lexer::findKeyWordToken(const char *key) {
+  auto it = std::find_if(std::begin(KEYWORD_TOKENS), std::end(KEYWORD_TOKENS),
+                         [key](const std::pair<const char *, TokenType> &p) {
+                           return std::strcmp(p.first, key) == 0;
+                         });
+  if (it != std::end(KEYWORD_TOKENS)) {
+    return Token{it->second, key};
+  } else {
+    return Token{tok_undefined, ""};
   }
-  // Restore position
-  // seekg puts the position back to where it was before
-  input->seekg(pos);
-  return token;
+}
+
+Token Lexer::findCharToken(char key) {
+  auto it = std::find_if(
+      std::begin(CHAR_TOKENS), std::end(CHAR_TOKENS),
+      [key](const std::pair<char, TokenType> &p) { return p.first == key; });
+  if (it != std::end(CHAR_TOKENS)) {
+    return Token{it->second, std::string(1, key)};
+  } else {
+    return Token{tok_undefined, ""};
+  }
 }
 
 Token Lexer::gettok() {
@@ -42,30 +49,17 @@ Token Lexer::gettok() {
   while (isspace(lastChar)) {
     lastChar = advance();
   }
-  // Handle identifiers [a-zA-Z][a-zA-Z0-9]*
   if (isalpha(lastChar)) {
     identifierStr = lastChar;
     while (isalnum((lastChar = advance()))) {
       identifierStr += lastChar;
     }
+    Token token = findKeyWordToken(identifierStr.c_str());
 
-    if (identifierStr == "def" && !isalnum(peek())) {
-      return tok_def;
+    if (token.getType() == tok_undefined) {
+      return Token{tok_identifier, identifierStr};
     }
-    if (identifierStr == "extern" && !isalnum(peek())) {
-      return tok_extern;
-    }
-    if (identifierStr == "int" && !isalnum(peek())) {
-      return tok_int;
-    }
-    if (identifierStr == "bool" && !isalnum(peek())) {
-      return tok_bool;
-    }
-    if (identifierStr == "float" && !isalnum(peek())) {
-      return tok_float;
-    }
-
-    return tok_identifier;
+    return token;
   }
 
   // Handle numbers [0-9.]+
@@ -77,58 +71,22 @@ Token Lexer::gettok() {
     } while (isdigit(lastChar) || lastChar == '.');
 
     setNumVal(strtod(numStr.c_str(), nullptr));
-    return tok_number;
+    // rerturn numbers token and give it the value numStr.c_str()
+    return Token{tok_number, numStr};
   }
 
-  if (identifierStr == "+") {
-    return tok_plus;
+  // simple look up into chars map
+  Token token = findCharToken(lastChar);
+
+  if (token.getType() != tok_undefined) {
+    lastChar = advance();
+    return token;
   }
 
-  if (identifierStr == "-") {
-    return tok_minus;
-  }
-
-  if (identifierStr == ",") {
-    return tok_comma;
-  }
-
-  if (identifierStr == "*") {
-    return tok_asterix;
-  }
-
-  if (identifierStr == "^") {
-    return tok_caret;
-  }
-
-  if (identifierStr == "~") {
-    return tok_caret;
-  }
-
-  if (identifierStr == "!") {
-    return tok_bang;
-  }
-
-  if (identifierStr == "/") {
-    return tok_slash;
-  }
-
-  if (identifierStr == ")") {
-    return tok_right_paren;
-  }
-
-  if (identifierStr == "()") {
-    return tok_left_paren;
-  }
   // Check for end of file
   if (lastChar == EOF) {
-    std::cout << "End of file" << std::endl;
-    return tok_eof;
+    return Token{tok_eof, ""};
   }
 
-  // Otherwise, return the character as its ASCII value
-  // int thisChar = lastChar;
-  // lastChar = advance();
-  // Maybe we should return something else here? Maybe tokens should actually
-  // hold some type of value?
-  return tok_undefined;
+  return Token{tok_undefined, identifierStr};
 }
