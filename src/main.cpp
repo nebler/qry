@@ -6,6 +6,5 @@
 int main() {
   Lexer lexer = Lexer(std::cin);
 
-
   return 0;
 }

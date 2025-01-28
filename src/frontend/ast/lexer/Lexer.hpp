@@ -1,6 +1,6 @@
 // Lexer.hpp
 #pragma once
-#include "frontend/ast/lexer/Token/Token.hpp"
+#include "frontend/ast/lexer/token/Token.hpp"
 #include <istream>
 #include <string>
 

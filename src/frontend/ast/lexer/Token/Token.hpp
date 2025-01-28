@@ -1,6 +1,6 @@
 #pragma once
 
-#include "frontend/ast/lexer/Token/TokenType.hpp"
+#include "frontend/ast/lexer/token/TokenType.hpp"
 #include <string>
 class Token {
   TokenType tokenType;
