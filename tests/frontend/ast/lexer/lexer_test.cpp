@@ -1,5 +1,7 @@
 #include "frontend/ast/lexer/Lexer.hpp"
-#include "frontend/ast/lexer/Token.hpp"
+#include "frontend/ast/lexer/Token/Token.hpp"
+#include "frontend/ast/lexer/Token/TokenType.hpp"
+
 #include <gtest/gtest.h>
 
 TEST(Lexer, defToken) {
@@ -7,17 +9,18 @@ TEST(Lexer, defToken) {
   std::istringstream input("def");
 
   Lexer lexer = Lexer(input);
-  int tokDefOutput = lexer.gettok();
-  EXPECT_EQ(tok_def, tokDefOutput);
+  Token tokDefOutput = lexer.gettok();
+  Token toDef = Token{tok_def, "def"};
+  EXPECT_EQ(toDef, tokDefOutput);
 }
 
 TEST(Lexer, identifierToken) {
 
   std::istringstream input("foo");
   Lexer lexer = Lexer(input);
-  int tokIndentifierOutputFoo = lexer.gettok();
-  EXPECT_EQ(tok_identifier, tokIndentifierOutputFoo);
-  EXPECT_EQ("foo", lexer.getIdentifierStr());
+  Token identifier = lexer.gettok();
+  Token tokIdentifier = Token{tok_identifier, "foo"};
+  EXPECT_EQ(identifier, tokIdentifier);
 }
 
 TEST(Lexer, numberToken) {
@@ -25,8 +28,10 @@ TEST(Lexer, numberToken) {
   std::istringstream input("42.0");
 
   Lexer lexer = Lexer(input);
-  int tokNumberOutput = lexer.gettok();
-  EXPECT_EQ(tok_number, tokNumberOutput);
+  Token token = lexer.gettok();
+  Token tokNumberOutput = Token{tok_number, "42.0"};
+
+  EXPECT_EQ(token, tokNumberOutput);
   EXPECT_EQ(lexer.getNumVal(), 42);
 }
 
@@ -35,8 +40,10 @@ TEST(Lexer, externToken) {
   std::istringstream input("extern");
 
   Lexer lexer = Lexer(input);
-  int tokenExternOutput = lexer.gettok();
-  EXPECT_EQ(tok_extern, tokenExternOutput);
+  Token tokenExternOutput = lexer.gettok();
+  Token tokExtern = Token{tok_extern, "extern"};
+
+  EXPECT_EQ(tokExtern, tokenExternOutput);
 }
 
 TEST(Lexer, eofToken) {
@@ -44,8 +51,10 @@ TEST(Lexer, eofToken) {
   std::istringstream input("");
 
   Lexer lexer = Lexer(input);
-  int tokenEOFOutput = lexer.gettok();
-  EXPECT_EQ(tok_eof, tokenEOFOutput);
+  Token tokenEOFOutput = lexer.gettok();
+  Token tokEOF = Token{tok_eof, ""};
+
+  EXPECT_EQ(tokEOF, tokenEOFOutput);
 }
 
 TEST(Lexer, skipAllWhiteSpaces) {
@@ -53,104 +62,155 @@ TEST(Lexer, skipAllWhiteSpaces) {
   std::istringstream input("      def       extern      ");
 
   Lexer lexer = Lexer(input);
-  int tokDefOutput = lexer.gettok();
-  EXPECT_EQ(tok_def, tokDefOutput);
+  Token tokDefOutput = lexer.gettok();
 
-  int tokenExternOutput = lexer.gettok();
-  EXPECT_EQ(tok_extern, tokenExternOutput);
+  Token tokDef = Token{tok_def, "def"};
 
-  int tokenEOFOutput = lexer.gettok();
-  EXPECT_EQ(tok_eof, tokenEOFOutput);
+  EXPECT_EQ(tokDef, tokDefOutput);
+
+  Token tokenExternOutput = lexer.gettok();
+  Token tokExtern = Token{tok_extern, "extern"};
+
+  EXPECT_EQ(tokExtern, tokenExternOutput);
+
+  Token tokenEOFOutput = lexer.gettok();
+  Token tokEOF = Token{tok_eof, ""};
+
+  EXPECT_EQ(tokEOF, tokenEOFOutput);
 }
 
 TEST(Lexer, allTokens) {
-
   std::istringstream input("def foo(x) extern 42.0");
 
   Lexer lexer = Lexer(input);
-  int tokDefOutput = lexer.gettok();
-  EXPECT_EQ(tok_def, tokDefOutput);
 
-  int tokIndentifierOutputFoo = lexer.gettok();
-  EXPECT_EQ(tok_identifier, tokIndentifierOutputFoo);
-  EXPECT_EQ("foo", lexer.getIdentifierStr());
+  // Expect token: "def"
+  Token tokDefOutput = lexer.gettok();
+  Token tokDef = Token{tok_def, "def"};
+  EXPECT_EQ(tokDef, tokDefOutput);
 
-  int tokIdentifierBracesOpen = lexer.gettok();
-  EXPECT_EQ('(', tokIdentifierBracesOpen);
-  int tokIndentifierOutputX = lexer.gettok();
-  EXPECT_EQ(tok_identifier, tokIndentifierOutputX);
-  EXPECT_EQ("x", lexer.getIdentifierStr());
-  int tokIdentifierBracesClose = lexer.gettok();
-  EXPECT_EQ(')', tokIdentifierBracesClose);
+  // Expect token: "foo"
+  Token identifier = lexer.gettok();
+  Token tokIdentifier = Token{tok_identifier, "foo"};
+  EXPECT_EQ(identifier, tokIdentifier);
 
-  int tokenExternOutput = lexer.gettok();
-  EXPECT_EQ(tok_extern, tokenExternOutput);
+  // Expect token: "("
+  Token leftParenOutput = lexer.gettok();
+  Token leftParen = Token{tok_left_paren, "("};
+  EXPECT_EQ(leftParenOutput, leftParen);
 
-  int tokenNumberOutput = lexer.gettok();
-  EXPECT_EQ(tok_number, tokenNumberOutput);
-  EXPECT_EQ(42, lexer.getNumVal());
+  // Expect token: "x"
+  Token tokIdentifierX = lexer.gettok();
+  Token tokX = Token{tok_identifier, "x"};
+  EXPECT_EQ(tokIdentifierX, tokX);
 
-  int tokEOFOut = lexer.gettok();
-  EXPECT_EQ(tok_eof, tokEOFOut);
+  // Expect token: ")"
+  Token rightParenOutput = lexer.gettok();
+  Token rightParen = Token{tok_right_paren, ")"};
+  EXPECT_EQ(rightParenOutput, rightParen);
+
+  // Expect token: "extern"
+  Token tokenExternOutput = lexer.gettok();
+  Token tokExtern = Token{tok_extern, "extern"};
+  EXPECT_EQ(tokExtern, tokenExternOutput);
+
+  // Expect token: "42.0"
+  Token tokenNumberOutput = lexer.gettok();
+  Token tokNumber = Token{tok_number, "42.0"};
+  EXPECT_EQ(tokNumber, tokenNumberOutput);
+  EXPECT_EQ(lexer.getNumVal(), 42.0); // Verify numeric value
+
+  // Expect token: eof
+  Token tokEOFOut = lexer.gettok();
+  Token tokEOF = Token{tok_eof, ""};
+  EXPECT_EQ(tokEOF, tokEOFOut);
 }
 
 TEST(Lexer, moreComplexFunction) {
-
   std::istringstream input("def foo(x y) x+foo(y, 4.0);");
 
   Lexer lexer = Lexer(input);
-  int tokDefOutput = lexer.gettok();
-  EXPECT_EQ(tok_def, tokDefOutput);
 
-  int tokIndentifierOutputFoo = lexer.gettok();
-  EXPECT_EQ(tok_identifier, tokIndentifierOutputFoo);
-  EXPECT_EQ("foo", lexer.getIdentifierStr());
+  // Expect token: "def"
+  Token tokDefOutput = lexer.gettok();
+  Token tokDef = Token{tok_def, "def"};
+  EXPECT_EQ(tokDef, tokDefOutput);
 
-  int tokIdentifierBracesOpen = lexer.gettok();
-  EXPECT_EQ('(', tokIdentifierBracesOpen);
+  // Expect token: "foo"
+  Token tokIndentifierOutputFoo = lexer.gettok();
+  Token tokFoo = Token{tok_identifier, "foo"};
+  EXPECT_EQ(tokIndentifierOutputFoo, tokFoo);
 
-  int tokIndentifierOutputX = lexer.gettok();
-  EXPECT_EQ(tok_identifier, tokIndentifierOutputX);
-  EXPECT_EQ("x", lexer.getIdentifierStr());
+  // Expect token: "("
+  Token tokLeftParen = lexer.gettok();
+  std::cout << tokLeftParen.getText() << std::endl;
+  Token tokLeftParenExpected = Token{tok_left_paren, "("};
+  EXPECT_EQ(tokLeftParen, tokLeftParenExpected);
 
-  int tokIndentifierOutputY = lexer.gettok();
-  EXPECT_EQ(tok_identifier, tokIndentifierOutputY);
-  EXPECT_EQ("y", lexer.getIdentifierStr());
+  // Expect token: "x"
+  Token tokX = Token{tok_identifier, "x"};
+  Token tokIdentifierX = lexer.gettok();
+  std::cout << tokIdentifierX.getText() << std::endl;
+  std::cout << tokIdentifierX.getType() << std::endl;
+  EXPECT_EQ(tokIdentifierX, tokX);
 
-  int tokIdentifierBracesClose = lexer.gettok();
-  EXPECT_EQ(')', tokIdentifierBracesClose);
+  // Expect token: "y"
+  Token tokIdentifierY = lexer.gettok();
+  Token tokY = Token{tok_identifier, "y"};
+  EXPECT_EQ(tokIdentifierY, tokY);
 
-  int tokIndentifierOutputX2 = lexer.gettok();
-  EXPECT_EQ(tok_identifier, tokIndentifierOutputX2);
-  EXPECT_EQ("x", lexer.getIdentifierStr());
+  // Expect token: ")"
+  Token tokRightParen = lexer.gettok();
+  Token tokRightParenExpected = Token{tok_right_paren, ")"};
+  EXPECT_EQ(tokRightParen, tokRightParenExpected);
 
-  int plus = lexer.gettok();
-  EXPECT_EQ('+', plus);
+  // Expect token: "x"
+  Token tokIdentifierX2 = lexer.gettok();
+  EXPECT_EQ(tokX, tokIdentifierX2);
 
-  int tokIndentifierOutputFoo2 = lexer.gettok();
-  EXPECT_EQ(tok_identifier, tokIndentifierOutputFoo2);
-  EXPECT_EQ("foo", lexer.getIdentifierStr());
+  // Expect token: "+"
+  Token plus = lexer.gettok();
+  Token tokPlus = Token{tok_plus, "+"};
+  EXPECT_EQ(plus, tokPlus);
 
-  int tokIdentifierBracesOpen2 = lexer.gettok();
-  EXPECT_EQ('(', tokIdentifierBracesOpen2);
+  // Expect token: "foo"
+  Token tokFoo2 = lexer.gettok();
+  Token tokFooExpected = Token{tok_identifier, "foo"};
+  EXPECT_EQ(tokFoo2, tokFooExpected);
 
-  int tokIndentifierOutputY2 = lexer.gettok();
-  EXPECT_EQ(tok_identifier, tokIndentifierOutputY2);
-  EXPECT_EQ("y", lexer.getIdentifierStr());
+  // Expect token: "("
+  Token tokLeftParen2 = lexer.gettok();
+  Token tokLeftParenExpected2 = Token{tok_left_paren, "("};
+  EXPECT_EQ(tokLeftParen2, tokLeftParenExpected2);
 
-  int tokIdentifierComma = lexer.gettok();
-  EXPECT_EQ(',', tokIdentifierComma);
+  // Expect token: "y"
+  Token tokIdentifierY2 = lexer.gettok();
+  Token tokYExpected = Token{tok_identifier, "y"};
+  EXPECT_EQ(tokIdentifierY2, tokYExpected);
 
-  int tokenNumberOutput = lexer.gettok();
-  EXPECT_EQ(tok_number, tokenNumberOutput);
-  EXPECT_EQ(4, lexer.getNumVal());
+  // Expect token: ","
+  Token tokComma = lexer.gettok();
+  Token tokCommaExpected = Token{tok_comma, ","};
+  EXPECT_EQ(tokComma, tokCommaExpected);
 
-  int tokIdentifierBracesClose2 = lexer.gettok();
-  EXPECT_EQ(')', tokIdentifierBracesClose2);
+  // Expect token: "4.0"
+  Token tokenNumberOutput = lexer.gettok();
+  Token tokNumber = Token{tok_number, "4.0"};
+  EXPECT_EQ(tokNumber, tokenNumberOutput);
+  EXPECT_EQ(lexer.getNumVal(), 4.0);
 
-  int tokIdentifierSemicolon = lexer.gettok();
-  EXPECT_EQ(';', tokIdentifierSemicolon);
+  // Expect token: ")"
+  Token tokRightParen2 = lexer.gettok();
+  Token tokRightParenExpected2 = Token{tok_right_paren, ")"};
+  EXPECT_EQ(tokRightParen2, tokRightParenExpected2);
 
-  int tokEOFOut = lexer.gettok();
-  EXPECT_EQ(tok_eof, tokEOFOut);
+  // Expect token: ";"
+  Token tokSemicolon = lexer.gettok();
+  Token tokSemicolonExpected = Token{tok_semicolon, ";"};
+  EXPECT_EQ(tokSemicolon, tokSemicolonExpected);
+
+  // Expect token: eof
+  Token tokEOFOut = lexer.gettok();
+  Token tokEOF = Token{tok_eof, ""};
+  EXPECT_EQ(tokEOF, tokEOFOut);
 }

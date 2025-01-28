@@ -77,5 +77,8 @@
         "stack": "cpp",
         "thread": "cpp",
         "unordered_set": "cpp"
-    }
+    },
+    "clangd.arguments": [
+        "--compile-commands-dir=${workspaceFolder}/build"
+    ]
 }
