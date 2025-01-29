@@ -1,4 +1,3 @@
-// Lexer.cpp
 #include "Lexer.hpp"
 #include <cctype>
 #include <iostream>

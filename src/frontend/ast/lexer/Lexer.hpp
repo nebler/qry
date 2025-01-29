@@ -1,4 +1,3 @@
-// Lexer.hpp
 #pragma once
 #include "frontend/ast/lexer/token/Token.hpp"
 #include <istream>
