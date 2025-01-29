@@ -11,16 +11,15 @@ public:
   Token(TokenType tokenType, std::string text)
       : tokenType(tokenType), text(text) {};
 
-  // Getters
+  Token() : tokenType(tok_undefined), text("") {}
+
   TokenType getType() const { return tokenType; }
 
   std::string getText() const { return text; }
 
-  // Equality operator
   bool operator==(const Token &other) const {
     return tokenType == other.tokenType && text == other.text;
   }
 
-  // Optional: Inequality operator
   bool operator!=(const Token &other) const { return !(*this == other); }
 };
