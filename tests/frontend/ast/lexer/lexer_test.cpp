@@ -1,6 +1,6 @@
 #include "frontend/ast/lexer/Lexer.hpp"
-#include "frontend/ast/lexer/Token/Token.hpp"
-#include "frontend/ast/lexer/Token/TokenType.hpp"
+#include "frontend/ast/lexer/token/Token.hpp"
+#include "frontend/ast/lexer/token/TokenType.hpp"
 
 #include <gtest/gtest.h>
 
