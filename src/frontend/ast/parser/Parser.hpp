@@ -5,6 +5,7 @@
 #include "frontend/ast/parser/expression/Expr.hpp"
 #include "frontend/ast/parser/parselets/infix/InfixParselet.hpp"
 #include "frontend/ast/parser/parselets/prefix/PrefixParselet.hpp"
+#include <iostream>
 #include <unordered_map>
 
 class InfixParselet;
@@ -41,9 +42,12 @@ public:
 
   std::unique_ptr<Expr> parseExpression(int precedence) {
     Token token = consume();
+    std::cout << token.getText() << std::endl;
+    std::cout << token.getType() << std::endl;
     auto it = prefixParselets.find(token.getType());
     PrefixParselet *prefix = it->second.get();
     std::unique_ptr<Expr> left = prefix->parse(*this, token);
+
     while (precedence < getPrecedence()) {
       token = lexer->gettok();
       token = consume();

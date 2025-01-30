@@ -1,35 +1,49 @@
-
+#pragma once
 
 #include "frontend/ast/lexer/token/TokenType.hpp"
 #include "frontend/ast/parser/Parser.hpp"
 #include "frontend/ast/parser/Precedence.hpp"
 #include "frontend/ast/parser/parselets/infix/BinaryOperatorParselet.hpp"
+#include "frontend/ast/parser/parselets/prefix/IdentifierParselet.hpp"
+#include "frontend/ast/parser/parselets/prefix/PrefixOperatorParselet.hpp"
 class qryParser : public Parser {
-
+public:
   qryParser(Lexer *lexer) : Parser(lexer) {
+
+    // Register the simple operator parselets.
+    prefix(tok_plus, PREFIX);
+    prefix(tok_minus, PREFIX);
+    prefix(tok_asterix, PREFIX);
+    prefix(tok_slash, PREFIX);
+    prefix(tok_caret, PREFIX);
+
     infixLeft(tok_plus, SUM);
     infixLeft(tok_minus, SUM);
     infixLeft(tok_asterix, PRODUCT);
     infixLeft(tok_slash, PRODUCT);
     infixRight(tok_caret, EXPONENT);
+
+    registerParselet(tok_identifier, std::unique_ptr<IdentifierParselet>(
+                                         new IdentifierParselet()));
   };
 
 private:
-  /**
-   * Registers a left-associative binary operator parselet for the given token
-   * and precedence.
-   */
   void infixLeft(TokenType token, int precedence) {
     registerParselet(token, std::unique_ptr<BinaryOperatorParselet>(
                                 new BinaryOperatorParselet(precedence, false)));
   }
 
-  /**
-   * Registers a right-associative binary operator parselet for the given token
-   * and precedence.
-   */
   void infixRight(TokenType token, int precedence) {
     registerParselet(token, std::unique_ptr<BinaryOperatorParselet>(
                                 new BinaryOperatorParselet(precedence, true)));
+  }
+
+  /**
+   * Registers a prefix unary operator parselet for the given token and
+   * precedence.
+   */
+  void prefix(TokenType token, int precedence) {
+    registerParselet(token, std::unique_ptr<PrefixOperatorParselet>(
+                                new PrefixOperatorParselet(precedence)));
   }
 };
