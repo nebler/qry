@@ -55,10 +55,11 @@ struct NumberExpr : Expr {
 };
 
 struct BinaryExpr : Expr {
-  char op;
+  std::string op;
   std::unique_ptr<Expr> lhs;
   std::unique_ptr<Expr> rhs;
-  BinaryExpr(char op, std::unique_ptr<Expr> lhs, std::unique_ptr<Expr> rhs)
+  BinaryExpr(std::string op, std::unique_ptr<Expr> lhs,
+             std::unique_ptr<Expr> rhs)
       : op(op), lhs(std::move(lhs)), rhs(std::move(rhs)) {};
   [[nodiscard]] auto kind() const -> ExprKind override {
     return ExprKind::Binary;
