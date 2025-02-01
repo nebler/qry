@@ -9,7 +9,11 @@ int main() {
   Lexer lexer = Lexer(std::cin);
   qryParser parser = qryParser(&lexer);
 
-  std::cout << "laslal" << std::endl;
-  std::unique_ptr<Expr> result = parser.parseExpression();
+  while (true) {
+
+    std::unique_ptr<Expr> result = parser.parseExpression();
+
+    std::cout << result->print() << std::endl;
+  }
   return 0;
 }
