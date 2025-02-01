@@ -1,7 +1,6 @@
 #pragma once
 
 #include "frontend/ast/parser/parselets/infix/InfixParselet.hpp"
-#include <iostream>
 class BinaryOperatorParselet : public InfixParselet {
 public:
   BinaryOperatorParselet(int precedence, bool isRight)
@@ -9,8 +8,6 @@ public:
   virtual std::unique_ptr<Expr> parse(Parser &parser,
                                       std::unique_ptr<Expr> left,
                                       Token token) const override {
-
-    std::cout << "laslal" << std::endl;
     // To handle right-associative operators like "^", we allow a slightly
     // lower precedence when parsing the right-hand side. This will let a
     // parselet with the same precedence appear on the right, which will then

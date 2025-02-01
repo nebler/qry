@@ -84,8 +84,7 @@ struct BinaryExpr : Expr {
   }
 
   std::string print() const override {
-    return "BinaryExpr: (" + lhs->print() + " " + op + " " + rhs->print() +
-           ")\n";
+    return "BinaryExpr: " + lhs->print() + " " + op + " " + rhs->print() + "\n";
   }
 };
 
@@ -100,7 +99,7 @@ struct PrefixExpr : Expr {
   }
 
   std::string print() const override {
-    return "PrefixExpr: (" + op.getText() + " " + right->print() + ")\n";
+    return "PrefixExpr: " + op.getText() + " " + right->print() + "\n";
   }
 };
 
@@ -149,7 +148,7 @@ struct PostfixExpr : Expr {
   }
 
   std::string print() const override {
-    return "PostfixExpr: (" + left->print() + " operator " +
-           std::to_string(operatorType) + ")\n";
+    return "PostfixExpr: " + left->print() + " operator " +
+           std::to_string(operatorType) + "\n";
   }
 };

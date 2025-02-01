@@ -6,14 +6,17 @@
 #include <iostream>
 
 int main() {
-  Lexer lexer = Lexer(std::cin);
+
+  std::string str = "a + b"; /* initial string */
+  std::istringstream in(str);
+  Lexer lexer = Lexer(in);
   qryParser parser = qryParser(&lexer);
 
   while (true) {
 
     std::unique_ptr<Expr> result = parser.parseExpression();
 
-    std::cout << result->print() << std::endl;
+    std::cout << "we parsed:" << result->print() << std::endl;
   }
   return 0;
 }

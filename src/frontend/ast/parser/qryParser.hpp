@@ -11,6 +11,18 @@ class qryParser : public Parser {
 public:
   qryParser(Lexer *lexer) : Parser(lexer) {
 
+    registerParselet(tok_identifier, std::unique_ptr<IdentifierParselet>(
+                                         new IdentifierParselet()));
+
+    registerParselet(tok_left_paren,
+                     std::unique_ptr<CallParselet>(new CallParselet()));
+
+    registerParselet(tok_left_paren,
+                     std::unique_ptr<GroupParselet>(new GroupParselet()));
+
+    registerParselet(tok_assign,
+                     std::unique_ptr<GroupParselet>(new GroupParselet()));
+
     // Register the simple operator parselets.
     prefix(tok_plus, PREFIX);
     prefix(tok_minus, PREFIX);
@@ -23,18 +35,6 @@ public:
     infixLeft(tok_asterix, PRODUCT);
     infixLeft(tok_slash, PRODUCT);
     infixRight(tok_caret, EXPONENT);
-
-    registerParselet(tok_identifier, std::unique_ptr<IdentifierParselet>(
-                                         new IdentifierParselet()));
-
-    registerParselet(tok_left_paren,
-                     std::unique_ptr<CallParselet>(new CallParselet()));
-
-    registerParselet(tok_left_paren,
-                     std::unique_ptr<GroupParselet>(new GroupParselet()));
-
-    registerParselet(tok_assign,
-                     std::unique_ptr<GroupParselet>(new GroupParselet()));
   };
 
 private:

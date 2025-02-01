@@ -17,6 +17,7 @@ Token Lexer::lookAhead(int distance) {
     throw std::out_of_range("No tokens available");
   }
 
+  input->seekg(pos);
   return tokens.back();
 }
 

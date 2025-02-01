@@ -22,7 +22,7 @@ private:
   std::unordered_map<TokenType, std::unique_ptr<InfixParselet>> infixParselets;
 
   int getPrecedence() {
-    auto itParser = infixParselets.find(currentToken.getType());
+    auto itParser = infixParselets.find(lookAhead().getType());
     if (itParser != infixParselets.end())
       return itParser->second->getPrecedence();
     return 0;
@@ -42,20 +42,18 @@ public:
 
   std::unique_ptr<Expr> parseExpression(int precedence) {
     Token token = consume();
-    std::cout << token.getText() << std::endl;
-    std::cout << token.getType() << std::endl;
     auto it = prefixParselets.find(token.getType());
     PrefixParselet *prefix = it->second.get();
     std::unique_ptr<Expr> left = prefix->parse(*this, token);
-
     while (precedence < getPrecedence()) {
-      token = lexer->gettok();
       token = consume();
       InfixParselet *infix = infixParselets[token.getType()].get();
       left = infix->parse(*this, std::move(left), token);
     }
     return left;
   }
+
+  Token lookAhead() { return lexer->lookAhead(1); }
 
   std::unique_ptr<Expr> parseExpression() { return parseExpression(0); }
   bool match(TokenType expected) { return expected == currentToken.getType(); }
