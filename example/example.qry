@@ -1,6 +1,1 @@
-var foo: int = 1;
-func add(int x, int y) int {
-    return x + y;
-}
-add(1, foo);
-var foo2 = add(1, foo);
+a+b

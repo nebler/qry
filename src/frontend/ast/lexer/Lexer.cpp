@@ -4,9 +4,16 @@
 
 int Lexer::advance() { return input->get(); }
 
+/*
+  Todo: HUGE hack.
+  Maybe try and make the gettok method more stateless?
+*/
 Token Lexer::lookAhead(int distance) {
   int pos = input->tellg();
+  auto charBefore = lastChar;
+  auto numbefore = numVal;
 
+  auto identStrBefore = this->identifierStr;
   std::vector<Token> tokens;
 
   for (int i = 0; i < distance; ++i) {
@@ -18,6 +25,10 @@ Token Lexer::lookAhead(int distance) {
   }
 
   input->seekg(pos);
+
+  lastChar = charBefore;
+  numVal = numbefore;
+  identifierStr = identStrBefore;
   return tokens.back();
 }
 
@@ -46,6 +57,7 @@ Token Lexer::findCharToken(char key) {
 
 Token Lexer::gettok() {
   // Skip whitespace
+
   while (isspace(lastChar)) {
     lastChar = advance();
   }
@@ -80,6 +92,8 @@ Token Lexer::gettok() {
 
   if (token.getType() != tok_undefined) {
     lastChar = advance();
+    std::cout << "we return this" << token.getType() << token.getText()
+              << std::endl;
     return token;
   }
 

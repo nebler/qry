@@ -3,15 +3,18 @@
 #include "frontend/ast/parser/qryParser.hpp"
 #include <iostream>
 
+#include <fstream>
 #include <iostream>
 
-int main() {
+int main(int argc, char *argv[]) {
 
-  std::string str = "a + b"; /* initial string */
-  std::istringstream in(str);
-  Lexer lexer = Lexer(in);
-  qryParser parser = qryParser(&lexer);
-
+  std::ifstream file(argv[1]);
+  if (!file) {
+    std::cerr << "Could not open file: " << argv[1] << std::endl;
+    return 1;
+  }
+  Lexer lexer(file);
+  qryParser parser(&lexer);
   while (true) {
 
     std::unique_ptr<Expr> result = parser.parseExpression();
