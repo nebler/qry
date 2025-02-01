@@ -1,5 +1,6 @@
 #pragma once
 #include "frontend/ast/lexer/token/Token.hpp"
+#include "frontend/ast/lexer/token/TokenType.hpp"
 #include <istream>
 #include <string>
 
@@ -21,10 +22,10 @@ private:
       {"bool", tok_bool},
       {"float", tok_float}};
   static constexpr std::pair<char, TokenType> CHAR_TOKENS[] = {
-      {'+', tok_plus},       {'-', tok_minus},      {',', tok_comma},
-      {'*', tok_asterix},    {'/', tok_slash},      {'^', tok_caret},
-      {'~', tok_tilde},      {'!', tok_bang},       {';', tok_semicolon},
-      {'(', tok_left_paren}, {')', tok_right_paren}};
+      {'+', tok_plus},       {'-', tok_minus},       {',', tok_comma},
+      {'*', tok_asterix},    {'/', tok_slash},       {'^', tok_caret},
+      {'~', tok_tilde},      {'!', tok_bang},        {';', tok_semicolon},
+      {'(', tok_left_paren}, {')', tok_right_paren}, {'=', tok_assign}};
   Token findKeyWordToken(const char *key);
   Token findCharToken(char key);
 

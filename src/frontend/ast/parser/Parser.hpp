@@ -58,16 +58,18 @@ public:
   }
 
   std::unique_ptr<Expr> parseExpression() { return parseExpression(0); }
-  bool match(Token expected) { return expected == currentToken; }
+  bool match(TokenType expected) { return expected == currentToken.getType(); }
 
-  Token consume(Token expected) {
+  Token consume(TokenType expected) {
     Token token = currentToken;
-    // if (token != expected) {
-    //   throw ParseException("Expected token " + tokentype::toString(expected)
-    //   +
-    //                        " and found " +
-    //                        tokentype::toString(token.getType()));
-    // }
+
+    // todo: fix this
+    //  if (token != expected) {
+    //    throw ParseException("Expected token " + tokentype::toString(expected)
+    //    +
+    //                         " and found " +
+    //                         tokentype::toString(token.getType()));
+    //  }
     return consume();
   }
 

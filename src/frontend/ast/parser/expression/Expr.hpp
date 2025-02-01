@@ -76,9 +76,10 @@ struct PrefixExpr : Expr {
   }
 };
 struct CallExpr : Expr {
-  std::string callee;
+  std::unique_ptr<Expr> callee;
   std::vector<std::unique_ptr<Expr>> args;
-  CallExpr(std::string callee, std::vector<std::unique_ptr<Expr>> args)
+  CallExpr(std::unique_ptr<Expr> callee,
+           std::vector<std::unique_ptr<Expr>> args)
       : callee(std::move(callee)), args(std::move(args)) {};
   [[nodiscard]] auto kind() const -> ExprKind override {
     return ExprKind::Call;

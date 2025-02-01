@@ -19,6 +19,7 @@ enum TokenType {
   tok_tilde = '~',
   tok_bang = '!',
   tok_semicolon = ';',
+  tok_assign = '=',
   tok_undefined = -999,
   tok_int = -100,
   tok_bool = -101,
