@@ -101,7 +101,7 @@ struct PlusBinaryExpr : BinaryExpr {
   }
 
   std::string print() const override {
-    return "BinaryExpr: " + lhs->print() + " + " + rhs->print() + "\n";
+    return "BinaryExpr: \n" + lhs->print() + " + " + rhs->print() + "\n";
   }
 };
 
@@ -113,7 +113,7 @@ struct MinusBinaryExpr : BinaryExpr {
   }
 
   std::string print() const override {
-    return "BinaryExpr: " + lhs->print() + " - " + rhs->print() + "\n";
+    return "BinaryExpr: \n" + lhs->print() + " - " + rhs->print() + "\n";
   }
 };
 
@@ -125,7 +125,7 @@ struct DivisionBinaryExpr : BinaryExpr {
   }
 
   std::string print() const override {
-    return "BinaryExpr: " + lhs->print() + " / " + rhs->print() + "\n";
+    return "BinaryExpr: \n" + lhs->print() + " / " + rhs->print() + "\n";
   }
 };
 
@@ -137,7 +137,7 @@ struct ExponentBinaryExpr : BinaryExpr {
   }
 
   std::string print() const override {
-    return "BinaryExpr: " + lhs->print() + " ^ " + rhs->print() + "\n";
+    return "BinaryExpr: \n" + lhs->print() + " ^ " + rhs->print() + "\n";
   }
 };
 
@@ -149,7 +149,7 @@ struct MultiplicationBinaryExpr : BinaryExpr {
   }
 
   std::string print() const override {
-    return "BinaryExpr: " + lhs->print() + " * " + rhs->print() + "\n";
+    return "BinaryExpr: \n" + lhs->print() + " * " + rhs->print() + "\n";
   }
 };
 
@@ -164,7 +164,7 @@ struct PrefixExpr : Expr {
   }
 
   std::string print() const override {
-    return "PrefixExpr: " + op.getText() + " " + right->print() + "\n";
+    return "PrefixExpr: \n" + op.getText() + " " + right->print() + "\n";
   }
 };
 
