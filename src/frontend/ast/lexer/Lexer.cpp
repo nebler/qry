@@ -92,14 +92,12 @@ Token Lexer::gettok() {
 
   if (token.getType() != tok_undefined) {
     lastChar = advance();
-    std::cout << "we return this" << token.getType() << token.getText()
-              << std::endl;
     return token;
   }
 
   // Check for end of file
   if (lastChar == EOF) {
-    return Token{tok_eof, ""};
+    return Token{tok_eof, std::string(1, lastChar)};
   }
 
   return Token{tok_undefined, identifierStr};

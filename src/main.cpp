@@ -15,11 +15,11 @@ int main(int argc, char *argv[]) {
   }
   Lexer lexer(file);
   qryParser parser(&lexer);
-  while (true) {
 
-    std::unique_ptr<Expr> result = parser.parseExpression();
-
-    std::cout << "we parsed:" << result->print() << std::endl;
+  std::vector<std::unique_ptr<Expr>> exprs = parser.parse();
+  for (const auto &expr : exprs) {
+    std::cout << expr->print() << std::endl;
   }
+
   return 0;
 }

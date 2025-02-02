@@ -55,6 +55,19 @@ public:
 
   Token lookAhead() { return lexer->lookAhead(1); }
 
+  std::vector<std::unique_ptr<Expr>> parse() {
+
+    std::vector<std::unique_ptr<Expr>> exprs;
+    while (currentToken.getType() != tok_eof) {
+
+      exprs.push_back(parseExpression(0));
+      if (lookAhead().getType() == tok_eof) {
+        break;
+      }
+    };
+    return exprs;
+  }
+
   std::unique_ptr<Expr> parseExpression() { return parseExpression(0); }
   bool match(TokenType expected) { return expected == currentToken.getType(); }
 
@@ -71,5 +84,8 @@ public:
     return consume();
   }
 
-  Token consume() { return lexer->gettok(); }
+  Token consume() {
+    currentToken = lexer->gettok();
+    return currentToken;
+  }
 };
