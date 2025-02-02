@@ -97,7 +97,7 @@ Token Lexer::gettok() {
 
   // Check for end of file
   if (lastChar == EOF) {
-    return Token{tok_eof, std::string(1, lastChar)};
+    return Token{tok_eof, ""};
   }
 
   return Token{tok_undefined, identifierStr};

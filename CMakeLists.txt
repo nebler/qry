@@ -32,6 +32,13 @@ file(GLOB_RECURSE MAIN_SOURCES CONFIGURE_DEPENDS
     ${CMAKE_SOURCE_DIR}/src/*.hpp
 )
 
+# Create a directory for resources in the build directory
+file(MAKE_DIRECTORY ${CMAKE_BINARY_DIR}/resources)
+
+# Copy resources to build directory
+file(COPY ${CMAKE_SOURCE_DIR}/tests/resources/ 
+     DESTINATION ${CMAKE_BINARY_DIR}/resources)
+
 # Remove main.cpp from MAIN_SOURCES - we'll handle it separately
 # This is important because we don't want main() in our library
 list(FILTER MAIN_SOURCES EXCLUDE REGEX ".*main\\.cpp$")

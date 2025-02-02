@@ -14,7 +14,13 @@ enum class ExprKind {
   Assignment,
   Struct,
   Prefix,
-  Identifier
+  Identifier,
+
+  BinaryPlus,
+  BinaryMinus,
+  BinaryDivision,
+  BinaryExponent,
+  BinaryMultiplication
 };
 
 struct Expr {
@@ -71,20 +77,79 @@ struct NumberExpr : Expr {
   }
 };
 
+// Base binary expression class
 struct BinaryExpr : Expr {
-  std::string op;
   std::unique_ptr<Expr> lhs;
   std::unique_ptr<Expr> rhs;
-  BinaryExpr(std::string op, std::unique_ptr<Expr> lhs,
-             std::unique_ptr<Expr> rhs)
-      : op(std::move(op)), lhs(std::move(lhs)), rhs(std::move(rhs)) {}
+
+  BinaryExpr(std::unique_ptr<Expr> lhs, std::unique_ptr<Expr> rhs)
+      : lhs(std::move(lhs)), rhs(std::move(rhs)) {}
 
   [[nodiscard]] auto kind() const -> ExprKind override {
     return ExprKind::Binary;
   }
 
+  // Make print pure virtual to force derived classes to implement it
+  virtual std::string print() const override = 0;
+};
+
+struct PlusBinaryExpr : BinaryExpr {
+  using BinaryExpr::BinaryExpr;
+
+  [[nodiscard]] auto kind() const -> ExprKind override {
+    return ExprKind::BinaryPlus;
+  }
+
   std::string print() const override {
-    return "BinaryExpr: " + lhs->print() + " " + op + " " + rhs->print() + "\n";
+    return "BinaryExpr: " + lhs->print() + " + " + rhs->print() + "\n";
+  }
+};
+
+struct MinusBinaryExpr : BinaryExpr {
+  using BinaryExpr::BinaryExpr;
+
+  [[nodiscard]] auto kind() const -> ExprKind override {
+    return ExprKind::BinaryMinus;
+  }
+
+  std::string print() const override {
+    return "BinaryExpr: " + lhs->print() + " - " + rhs->print() + "\n";
+  }
+};
+
+struct DivisionBinaryExpr : BinaryExpr {
+  using BinaryExpr::BinaryExpr;
+
+  [[nodiscard]] auto kind() const -> ExprKind override {
+    return ExprKind::BinaryDivision;
+  }
+
+  std::string print() const override {
+    return "BinaryExpr: " + lhs->print() + " / " + rhs->print() + "\n";
+  }
+};
+
+struct ExponentBinaryExpr : BinaryExpr {
+  using BinaryExpr::BinaryExpr;
+
+  [[nodiscard]] auto kind() const -> ExprKind override {
+    return ExprKind::BinaryExponent;
+  }
+
+  std::string print() const override {
+    return "BinaryExpr: " + lhs->print() + " ^ " + rhs->print() + "\n";
+  }
+};
+
+struct MultiplicationBinaryExpr : BinaryExpr {
+  using BinaryExpr::BinaryExpr;
+
+  [[nodiscard]] auto kind() const -> ExprKind override {
+    return ExprKind::BinaryMultiplication;
+  }
+
+  std::string print() const override {
+    return "BinaryExpr: " + lhs->print() + " * " + rhs->print() + "\n";
   }
 };
 

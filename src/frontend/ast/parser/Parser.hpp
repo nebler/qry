@@ -60,7 +60,8 @@ public:
     std::vector<std::unique_ptr<Expr>> exprs;
     while (currentToken.getType() != tok_eof) {
 
-      exprs.push_back(parseExpression(0));
+      exprs.push_back(parseExpression());
+
       if (lookAhead().getType() == tok_eof) {
         break;
       }
