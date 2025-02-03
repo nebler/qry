@@ -1,5 +1,9 @@
 #pragma once
 
+#include "frontend/ast/parser/Parser.hpp"
+#include "frontend/ast/parser/statement/Statement.hpp"
+#include <memory>
+
 class StatementParselet {
 public:
   virtual ~StatementParselet() = default;

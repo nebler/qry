@@ -16,11 +16,8 @@ private:
 
   // This is evaluated at compile time
   static constexpr std::pair<const char *, TokenType> KEYWORD_TOKENS[] = {
-      {"def", tok_def},
-      {"extern", tok_extern},
-      {"int", tok_int},
-      {"bool", tok_bool},
-      {"float", tok_float}};
+      {"def", tok_def},   {"extern", tok_extern}, {"int", tok_int},
+      {"bool", tok_bool}, {"var", tok_var},       {"float", tok_float}};
   static constexpr std::pair<char, TokenType> CHAR_TOKENS[] = {
       {'+', tok_plus},       {'-', tok_minus},       {',', tok_comma},
       {'*', tok_asterix},    {'/', tok_slash},       {'^', tok_caret},

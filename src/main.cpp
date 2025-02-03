@@ -16,9 +16,9 @@ int main(int argc, char *argv[]) {
   Lexer lexer(file);
   qryParser parser(&lexer);
 
-  std::vector<std::unique_ptr<Expr>> exprs = parser.parse();
-  for (const auto &expr : exprs) {
-    std::cout << expr->print() << std::endl;
+  std::vector<std::unique_ptr<Stmt>> statements = parser.parse();
+  for (const auto &stmt : statements) {
+    std::cout << stmt->print() << std::endl;
   }
 
   return 0;

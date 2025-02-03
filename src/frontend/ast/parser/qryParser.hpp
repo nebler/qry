@@ -6,6 +6,7 @@
 #include "frontend/ast/parser/parselets/infix/CallParselet.hpp"
 #include "frontend/ast/parser/parselets/prefix/GroupParselet.hpp"
 #include "frontend/ast/parser/parselets/prefix/IdentifierParselet.hpp"
+#include "frontend/ast/parser/parselets/prefix/NumberParselet.hpp"
 #include "frontend/ast/parser/parselets/prefix/PrefixOperatorParselet.hpp"
 class qryParser : public Parser {
 public:
@@ -22,7 +23,8 @@ public:
 
     registerParselet(tok_assign,
                      std::unique_ptr<GroupParselet>(new GroupParselet()));
-
+    registerParselet(tok_number,
+                     std::unique_ptr<NumberParselet>(new NumberParselet()));
     // Register the simple operator parselets.
     prefix(tok_plus, PREFIX);
     prefix(tok_minus, PREFIX);

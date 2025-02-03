@@ -13,94 +13,6 @@ void createTestFile(const std::string &filename, const std::string &content) {
   file.close();
 }
 
-// Test helper function (same as provided)
-void testTree(std::vector<std::unique_ptr<Expr>> exprsCompare,
-              std::string fileName) {
-  std::ifstream file(fileName);
-  ASSERT_TRUE(file.good()) << "File " << fileName << " not found!";
-  Lexer lexer = Lexer(file);
-  qryParser parser = qryParser(&lexer);
-  std::vector<std::unique_ptr<Expr>> exprs = parser.parse();
-  for (size_t i = 0; i < exprs.size(); i++) {
-    EXPECT_EQ(exprs[i]->print(), exprsCompare[i]->print());
-  }
-}
-
-// Test case for simple addition: a+b
-TEST(Parser, SimpleAddition) {
-  createTestFile("resources/simple_add.qry", "a+b");
-
-  std::vector<std::unique_ptr<Expr>> exprs;
-  auto a = std::make_unique<IdentifierExpr>("a");
-  auto b = std::make_unique<IdentifierExpr>("b");
-  exprs.push_back(std::make_unique<PlusBinaryExpr>(std::move(a), std::move(b)));
-
-  testTree(std::move(exprs), "resources/simple_add.qry");
-}
-
-// Test case for simple subtraction: a-b
-TEST(Parser, SimpleSubtraction) {
-  createTestFile("resources/simple_sub.qry", "a-b");
-
-  std::vector<std::unique_ptr<Expr>> exprs;
-  auto a = std::make_unique<IdentifierExpr>("a");
-  auto b = std::make_unique<IdentifierExpr>("b");
-  exprs.push_back(
-      std::make_unique<MinusBinaryExpr>(std::move(a), std::move(b)));
-
-  testTree(std::move(exprs), "resources/simple_sub.qry");
-}
-
-// Test case for complex expression with multiplication: a+b*c-d
-TEST(Parser, ComplexExpression) {
-  createTestFile("resources/complex.qry", "a+b*c-d");
-
-  std::vector<std::unique_ptr<Expr>> exprs;
-
-  // Building the AST from bottom up:
-  // First create b*c
-  auto b = std::make_unique<IdentifierExpr>("b");
-  auto c = std::make_unique<IdentifierExpr>("c");
-  auto mult =
-      std::make_unique<MultiplicationBinaryExpr>(std::move(b), std::move(c));
-
-  // Then a+(b*c)
-  auto a = std::make_unique<IdentifierExpr>("a");
-  auto plus = std::make_unique<PlusBinaryExpr>(std::move(a), std::move(mult));
-
-  // Finally (a+(b*c))-d
-  auto d = std::make_unique<IdentifierExpr>("d");
-  exprs.push_back(
-      std::make_unique<MinusBinaryExpr>(std::move(plus), std::move(d)));
-
-  testTree(std::move(exprs), "resources/complex.qry");
-}
-
-// Test case for complex expression with multiple operations: d+e-i*c
-TEST(Parser, MultipleOperations) {
-  createTestFile("resources/multiple_ops.qry", "d+e-i*c");
-
-  std::vector<std::unique_ptr<Expr>> exprs;
-
-  // Building the AST from bottom up:
-  // First create i*c
-  auto i = std::make_unique<IdentifierExpr>("i");
-  auto c = std::make_unique<IdentifierExpr>("c");
-  auto mult =
-      std::make_unique<MultiplicationBinaryExpr>(std::move(i), std::move(c));
-
-  // Then create d+e
-  auto d = std::make_unique<IdentifierExpr>("d");
-  auto e = std::make_unique<IdentifierExpr>("e");
-  auto plus = std::make_unique<PlusBinaryExpr>(std::move(d), std::move(e));
-
-  // Finally (d+e)-(i*c)
-  exprs.push_back(
-      std::make_unique<MinusBinaryExpr>(std::move(plus), std::move(mult)));
-
-  testTree(std::move(exprs), "resources/multiple_ops.qry");
-}
-
 // Generic helper function for creating test files with multiple expressions
 void createMultiExpressionFile(const std::string &filename,
                                const std::vector<std::string> &expressions) {
@@ -113,86 +25,140 @@ void createMultiExpressionFile(const std::string &filename,
   }
   file.close();
 }
-
-TEST(Parser, AllExpressions) {
-  // Our specific test expressions
-  const std::vector<std::string> expressions = {"a+b*c-d", "a+b", "a-b",
-                                                "d+e-i*c"};
-
-  // Create test file using our generic function
-  const std::string filename = "resources/all_expressions.qry";
-  createMultiExpressionFile(filename, expressions);
-
-  // Create the expected AST for all expressions
-  std::vector<std::unique_ptr<Expr>> expectedExprs;
-
-  // 1. Build AST for "a+b*c-d"
-  {
-    // Create b*c
-    auto b1 = std::make_unique<IdentifierExpr>("b");
-    auto c1 = std::make_unique<IdentifierExpr>("c");
-    auto mult = std::make_unique<MultiplicationBinaryExpr>(std::move(b1),
-                                                           std::move(c1));
-
-    // Create a+(b*c)
-    auto a1 = std::make_unique<IdentifierExpr>("a");
-    auto plus =
-        std::make_unique<PlusBinaryExpr>(std::move(a1), std::move(mult));
-
-    // Create (a+(b*c))-d
-    auto d1 = std::make_unique<IdentifierExpr>("d");
-    expectedExprs.push_back(
-        std::make_unique<MinusBinaryExpr>(std::move(plus), std::move(d1)));
-  }
-
-  // 2. Build AST for "a+b"
-  {
-    auto a2 = std::make_unique<IdentifierExpr>("a");
-    auto b2 = std::make_unique<IdentifierExpr>("b");
-    expectedExprs.push_back(
-        std::make_unique<PlusBinaryExpr>(std::move(a2), std::move(b2)));
-  }
-
-  // 3. Build AST for "a-b"
-  {
-    auto a3 = std::make_unique<IdentifierExpr>("a");
-    auto b3 = std::make_unique<IdentifierExpr>("b");
-    expectedExprs.push_back(
-        std::make_unique<MinusBinaryExpr>(std::move(a3), std::move(b3)));
-  }
-
-  // 4. Build AST for "d+e-i*c"
-  {
-    // Create i*c
-    auto i = std::make_unique<IdentifierExpr>("i");
-    auto c4 = std::make_unique<IdentifierExpr>("c");
-    auto mult =
-        std::make_unique<MultiplicationBinaryExpr>(std::move(i), std::move(c4));
-
-    // Create d+e
-    auto d4 = std::make_unique<IdentifierExpr>("d");
-    auto e = std::make_unique<IdentifierExpr>("e");
-    auto plus = std::make_unique<PlusBinaryExpr>(std::move(d4), std::move(e));
-
-    // Create (d+e)-(i*c)
-    expectedExprs.push_back(
-        std::make_unique<MinusBinaryExpr>(std::move(plus), std::move(mult)));
-  }
-
-  // Parse and verify all expressions
-  std::ifstream file(filename);
-  ASSERT_TRUE(file.good()) << "File " << filename << " not found!";
+// First, update the test helper function to handle statements
+void testTree(std::vector<std::unique_ptr<Stmt>> stmtsCompare,
+              std::string fileName) {
+  std::ifstream file(fileName);
+  ASSERT_TRUE(file.good()) << "File " << fileName << " not found!";
   Lexer lexer = Lexer(file);
   qryParser parser = qryParser(&lexer);
-  std::vector<std::unique_ptr<Expr>> actualExprs = parser.parse();
-
-  // Verify we got the expected number of expressions
-  ASSERT_EQ(actualExprs.size(), expectedExprs.size())
-      << "Number of parsed expressions doesn't match expected count";
-
-  // Compare each expression
-  for (size_t i = 0; i < actualExprs.size(); i++) {
-    EXPECT_EQ(actualExprs[i]->print(), expectedExprs[i]->print())
-        << "Mismatch in expression " << i + 1;
+  std::vector<std::unique_ptr<Stmt>> stmts = parser.parse();
+  for (size_t i = 0; i < stmts.size(); i++) {
+    EXPECT_EQ(stmts[i]->print(), stmtsCompare[i]->print());
   }
+}
+
+// Test case for simple variable declaration with addition
+TEST(Parser, SimpleAddition) {
+  createTestFile("resources/simple_add.qry", "var a = 1 + 2");
+
+  std::vector<std::unique_ptr<Stmt>> stmts;
+  auto num1 = std::make_unique<NumberExpr>(1);
+  auto num2 = std::make_unique<NumberExpr>(2);
+  auto plus =
+      std::make_unique<PlusBinaryExpr>(std::move(num1), std::move(num2));
+  stmts.push_back(std::make_unique<VarDeclarationStmt>("a", std::move(plus)));
+
+  testTree(std::move(stmts), "resources/simple_add.qry");
+}
+
+// Test case for simple subtraction
+TEST(Parser, SimpleSubtraction) {
+  createTestFile("resources/simple_sub.qry", "var b = 5 - 3;");
+
+  std::vector<std::unique_ptr<Stmt>> stmts;
+  auto num1 = std::make_unique<NumberExpr>(5);
+  auto num2 = std::make_unique<NumberExpr>(3);
+  auto minus =
+      std::make_unique<MinusBinaryExpr>(std::move(num1), std::move(num2));
+  stmts.push_back(std::make_unique<VarDeclarationStmt>("b", std::move(minus)));
+
+  testTree(std::move(stmts), "resources/simple_sub.qry");
+}
+
+// Test case for complex expression with multiplication
+TEST(Parser, ComplexExpression) {
+  createTestFile("resources/complex.qry", "var result = 2 + 3 * 4 - 1;");
+
+  std::vector<std::unique_ptr<Stmt>> stmts;
+
+  // Building the AST from bottom up:
+  // First create 3*4
+  auto num3 = std::make_unique<NumberExpr>(3);
+  auto num4 = std::make_unique<NumberExpr>(4);
+  auto mult = std::make_unique<MultiplicationBinaryExpr>(std::move(num3),
+                                                         std::move(num4));
+
+  // Then 2+(3*4)
+  auto num2 = std::make_unique<NumberExpr>(2);
+  auto plus =
+      std::make_unique<PlusBinaryExpr>(std::move(num2), std::move(mult));
+
+  // Finally (2+(3*4))-1
+  auto num1 = std::make_unique<NumberExpr>(1);
+  auto minus =
+      std::make_unique<MinusBinaryExpr>(std::move(plus), std::move(num1));
+
+  stmts.push_back(
+      std::make_unique<VarDeclarationStmt>("result", std::move(minus)));
+
+  testTree(std::move(stmts), "resources/complex.qry");
+}
+
+// Test case for variable reference in expression
+TEST(Parser, VariableReference) {
+  createTestFile("resources/var_ref.qry", "var b = a + 2;");
+
+  std::vector<std::unique_ptr<Stmt>> stmts;
+  auto varRef = std::make_unique<IdentifierExpr>("a");
+  auto num = std::make_unique<NumberExpr>(2);
+  auto plus =
+      std::make_unique<PlusBinaryExpr>(std::move(varRef), std::move(num));
+  stmts.push_back(std::make_unique<VarDeclarationStmt>("b", std::move(plus)));
+
+  testTree(std::move(stmts), "resources/var_ref.qry");
+}
+
+// Test case for multiple variable declarations
+TEST(Parser, MultipleDeclarations) {
+  const std::vector<std::string> declarations = {
+      "var x = 1 + 2;", "var y = 3 * 4;", "var z = x + y;",
+      "var result = z - 5;"};
+
+  const std::string filename = "resources/multiple_decls.qry";
+  createMultiExpressionFile(filename, declarations);
+
+  std::vector<std::unique_ptr<Stmt>> expectedStmts;
+
+  // First declaration: var x = 1 + 2;
+  {
+    auto num1 = std::make_unique<NumberExpr>(1);
+    auto num2 = std::make_unique<NumberExpr>(2);
+    auto plus =
+        std::make_unique<PlusBinaryExpr>(std::move(num1), std::move(num2));
+    expectedStmts.push_back(
+        std::make_unique<VarDeclarationStmt>("x", std::move(plus)));
+  }
+
+  // Second declaration: var y = 3 * 4;
+  {
+    auto num3 = std::make_unique<NumberExpr>(3);
+    auto num4 = std::make_unique<NumberExpr>(4);
+    auto mult = std::make_unique<MultiplicationBinaryExpr>(std::move(num3),
+                                                           std::move(num4));
+    expectedStmts.push_back(
+        std::make_unique<VarDeclarationStmt>("y", std::move(mult)));
+  }
+
+  // Third declaration: var z = x + y;
+  {
+    auto varX = std::make_unique<IdentifierExpr>("x");
+    auto varY = std::make_unique<IdentifierExpr>("y");
+    auto plus =
+        std::make_unique<PlusBinaryExpr>(std::move(varX), std::move(varY));
+    expectedStmts.push_back(
+        std::make_unique<VarDeclarationStmt>("z", std::move(plus)));
+  }
+
+  // Fourth declaration: var result = z - 5;
+  {
+    auto varZ = std::make_unique<IdentifierExpr>("z");
+    auto num5 = std::make_unique<NumberExpr>(5);
+    auto minus =
+        std::make_unique<MinusBinaryExpr>(std::move(varZ), std::move(num5));
+    expectedStmts.push_back(
+        std::make_unique<VarDeclarationStmt>("result", std::move(minus)));
+  }
+
+  testTree(std::move(expectedStmts), filename);
 }

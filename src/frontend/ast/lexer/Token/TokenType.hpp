@@ -8,6 +8,7 @@ enum TokenType {
   tok_extern = -3,
   tok_identifier = -4,
   tok_number = -5,
+  tok_var = -6,
   tok_comma = ',',
   tok_right_paren = ')',
   tok_left_paren = '(',
