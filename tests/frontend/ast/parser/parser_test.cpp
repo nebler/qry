@@ -1,4 +1,5 @@
 #include "frontend/ast/lexer/Lexer.hpp"
+#include "frontend/ast/parser/ast/ASTNode.hpp"
 #include "frontend/ast/parser/qryParser.hpp"
 #include <fstream>
 #include <gtest/gtest.h>
