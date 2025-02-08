@@ -1,5 +1,4 @@
 #include "frontend/ast/lexer/Lexer.hpp"
-#include "frontend/ast/parser/Parser.hpp"
 #include "frontend/ast/parser/qryParser.hpp"
 #include <fstream>
 #include <gtest/gtest.h>
@@ -40,7 +39,7 @@ void testTree(std::vector<std::unique_ptr<Stmt>> stmtsCompare,
 
 // Test case for simple variable declaration with addition
 TEST(Parser, SimpleAddition) {
-  createTestFile("resources/simple_add.qry", "var a = 1 + 2");
+  createTestFile("resources/simple_add.qry", "var a = 1 + 2;");
 
   std::vector<std::unique_ptr<Stmt>> stmts;
   auto num1 = std::make_unique<NumberExpr>(1);
