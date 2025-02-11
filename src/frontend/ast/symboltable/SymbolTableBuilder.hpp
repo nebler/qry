@@ -1,48 +1,97 @@
 #pragma once
-
-// Now let's create our visitor that builds the symbol table
 #include "frontend/ast/parser/ast/ASTNode.hpp"
-#include "frontend/ast/symboltable/SymbolTable.hpp"
+#include "frontend/ast/symboltable/Scope.hpp"
+#include <cstddef>
+#include <memory>
+
 class SymbolTableBuilder : public ASTVisitor {
 private:
-  SymbolTable &symbolTable;
+  std::unique_ptr<Scope> currentScope;
 
-  // Helper to visit all expressions in a vector
   void visitExpressions(const std::vector<std::unique_ptr<Expr>> &exprs) {
     for (const auto &expr : exprs) {
       expr->accept(*this);
     }
   }
 
-public:
-  explicit SymbolTableBuilder(SymbolTable &st) : symbolTable(st) {}
+  Scope *enterScope(ScopeType type) {
+    auto newScope = std::make_unique<Scope>(currentScope.get(), type);
+    Scope *ptr = newScope.get();
 
-  // Visit variable declarations
+    if (currentScope) {
+      currentScope->addChild(std::move(newScope));
+    } else {
+      currentScope = std::move(newScope);
+    }
+    return ptr;
+  }
+
+  std::optional<Symbol *> getSymbol(const std::string &name) {
+    Scope *scope = currentScope.get();
+    while (scope) {
+      if (Symbol *symbol = scope->lookupLocal(name)) {
+        return symbol;
+      }
+      scope = scope->getParent();
+    }
+    return std::nullopt;
+  }
+
+public:
+  static std::unique_ptr<Scope>
+  createSymbolTable(const std::vector<std::unique_ptr<Stmt>> &ast) {
+    SymbolTableBuilder builder;
+
+    builder.currentScope = std::make_unique<Scope>(nullptr, ScopeType::Global);
+
+    for (const auto &stmt : ast) {
+      stmt->accept(builder);
+    }
+
+    return std::move(builder.currentScope);
+  }
+
   void visitVarDeclarationStmt(const VarDeclarationStmt *stmt) override {
-    // First visit the initializer to catch any variables used there
+
     stmt->initializer->accept(*this);
 
-    // Now declare this variable
-    symbolTable.declare(stmt->name, stmt);
-
-    // Since it has an initializer, mark it as defined
-    symbolTable.define(stmt->name);
+    currentScope->declare(stmt->name, stmt);
   }
 
-  // Visit identifiers to record variable uses
   void visitIdentifierExpr(const IdentifierExpr *expr) override {
-    // Record this usage of the variable
-    symbolTable.addUse(expr->identifier, expr);
+    if (auto symbolOpt = getSymbol(expr->identifier)) {
+      Symbol *symbol = *symbolOpt;
+    } else {
+      throw std::runtime_error("Use of undeclared variable '" +
+                               expr->identifier + "'");
+    }
   }
 
-  // Visit binary expressions
   void visitBinaryExpr(const BinaryExpr *expr) override {
-    // Visit both sides to catch any variables
     expr->lhs->accept(*this);
     expr->rhs->accept(*this);
   }
 
   void visitPlusBinaryExpr(const PlusBinaryExpr *expr) override {
+    visitBinaryExpr(expr);
+  }
+
+  virtual void visitMinusBinaryExpr(const MinusBinaryExpr *expr) override {
+    visitBinaryExpr(expr);
+  }
+
+  virtual void
+  visitDivisionBinaryExpr(const DivisionBinaryExpr *expr) override {
+    visitBinaryExpr(expr);
+  }
+
+  virtual void
+  visitExponentBinaryExpr(const ExponentBinaryExpr *expr) override {
+    visitBinaryExpr(expr);
+  }
+
+  virtual void
+  visitMultiplicationBinaryExpr(const MultiplicationBinaryExpr *expr) override {
     visitBinaryExpr(expr);
   }
 
@@ -63,8 +112,14 @@ public:
     visitExpressions(expr->args);
   }
 
-  void visitExpressionStmt(const ExpressionStmt *stmt) override {
-    // Just visit the expression
-    stmt->expression->accept(*this);
+  virtual void visitAssignExpr(const AssignExpr *expr) override {
+    if (auto symbolOpt = getSymbol(expr->name)) {
+      Symbol *symbol = *symbolOpt;
+    } else {
+      throw std::runtime_error("Use of undeclared variable '" + expr->name +
+                               "'");
+    }
   }
+  virtual void visitFunctionExpr(const FunctionExpr *expr) override {}
+  virtual void visitExpressionStmt(const ExpressionStmt *stmt) override {}
 };

@@ -1,15 +1,13 @@
 #pragma once
 #include "frontend/ast/symboltable/Symbol.hpp"
-#include <algorithm>
 #include <map>
 #include <memory>
 enum class ScopeType { Global, Function, Block, Class, Namespace, Loop };
 class Scope {
 private:
   std::map<std::string, Symbol> symbols;
-  Scope *parent; // Points up to parent scope
-  std::vector<std::unique_ptr<Scope>>
-      children; // Owns and points to child scopes
+  Scope *parent;
+  std::vector<std::unique_ptr<Scope>> children;
   ScopeType scopeType;
 
 public:
