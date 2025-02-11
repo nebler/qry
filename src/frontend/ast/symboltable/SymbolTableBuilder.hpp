@@ -100,7 +100,6 @@ public:
   }
 
   void visitPrefixExpr(const PrefixExpr *expr) override {
-    // Visit the operand
     expr->right->accept(*this);
   }
 
