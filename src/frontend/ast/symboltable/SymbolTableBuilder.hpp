@@ -39,10 +39,12 @@ private:
 
 public:
   static std::unique_ptr<Scope>
-  createSymbolTable(const std::unique_ptr<Stmt> &ast) {
+  createSymbolTable(const std::unique_ptr<ProgramNode> &ast) {
     SymbolTableBuilder builder;
     builder.currentScope = std::make_unique<Scope>(nullptr, ScopeType::Global);
-    ast->accept(builder);
+    for (const auto &node : ast->statements) {
+      node->accept(builder);
+    }
     return std::move(builder.currentScope);
   }
 
@@ -56,6 +58,7 @@ public:
   void visitIdentifierExpr(const IdentifierExpr *expr) override {
     if (auto symbolOpt = getSymbol(expr->identifier)) {
       Symbol *symbol = *symbolOpt;
+      symbol->addUse(expr);
     } else {
       throw std::runtime_error("Use of undeclared variable '" +
                                expr->identifier + "'");

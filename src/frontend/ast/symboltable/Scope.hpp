@@ -5,12 +5,12 @@
 enum class ScopeType { Global, Function, Block, Class, Namespace, Loop };
 class Scope {
 private:
-  std::map<std::string, Symbol> symbols;
   Scope *parent;
-  std::vector<std::unique_ptr<Scope>> children;
   ScopeType scopeType;
 
 public:
+  std::map<std::string, Symbol> symbols;
+  std::vector<std::unique_ptr<Scope>> children;
   explicit Scope(Scope *parentScope = nullptr,
                  ScopeType scopeType = ScopeType::Global)
       : parent(parentScope), scopeType(scopeType) {}
