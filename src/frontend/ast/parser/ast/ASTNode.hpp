@@ -24,7 +24,7 @@ enum class ExprKind {
   BinaryMultiplication
 };
 
-enum class StmtKind { VarDeclaration, Expression };
+enum class StmtKind { VarDeclaration, Expression, ProgramNode };
 
 // Forward declare visitor
 class ASTVisitor;
@@ -46,6 +46,30 @@ struct Expr : ASTNode {
 // Base class for all statements
 struct Stmt : ASTNode {
   [[nodiscard]] virtual auto kind() const -> StmtKind = 0;
+};
+
+// Add this to your ASTNode.hpp
+struct ProgramNode : Stmt {
+  std::vector<std::unique_ptr<Stmt>> statements;
+
+  explicit ProgramNode(std::vector<std::unique_ptr<Stmt>> stmts)
+      : statements(std::move(stmts)) {}
+
+  void accept(ASTVisitor &visitor) override {
+    // You'll need to add corresponding visitor method
+  }
+
+  [[nodiscard]] auto kind() const -> StmtKind override {
+    return StmtKind::ProgramNode;
+  }
+
+  std::string print() const override {
+    std::string result = "Program:\n";
+    for (const auto &stmt : statements) {
+      result += stmt->print() + "\n";
+    }
+    return result;
+  }
 };
 
 // Now for our concrete expression classes
@@ -107,7 +131,7 @@ struct FunctionExpr : Expr {
     return ExprKind::Function;
   }
 
-  void accept(ASTVisitor &visitor);
+  void accept(ASTVisitor &visitor) override;
 
   std::string print() const override {
     std::ostringstream oss;
@@ -337,7 +361,7 @@ void DivisionBinaryExpr::accept(ASTVisitor &visitor) {
   visitor.visitDivisionBinaryExpr(this);
 }
 
-void ExponentBinaryExpr::accept(ASTVisitor &visitor) {
+inline void ExponentBinaryExpr::accept(ASTVisitor &visitor) {
   visitor.visitExponentBinaryExpr(this);
 }
 

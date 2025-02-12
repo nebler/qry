@@ -32,9 +32,9 @@ void testTree(std::vector<std::unique_ptr<Stmt>> stmtsCompare,
   ASSERT_TRUE(file.good()) << "File " << fileName << " not found!";
   Lexer lexer = Lexer(file);
   qryParser parser = qryParser(&lexer);
-  std::vector<std::unique_ptr<Stmt>> stmts = parser.parse();
-  for (size_t i = 0; i < stmts.size(); i++) {
-    EXPECT_EQ(stmts[i]->print(), stmtsCompare[i]->print());
+  std::unique_ptr<ProgramNode> astTree = parser.parse();
+  for (size_t i = 0; i < astTree->statements.size(); i++) {
+    EXPECT_EQ(astTree->statements[i]->print(), stmtsCompare[i]->print());
   }
 }
 

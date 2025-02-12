@@ -5,6 +5,8 @@
 #include "frontend/ast/parser/ast/ASTNode.hpp"
 #include "frontend/ast/parser/parselets/infix/InfixParselet.hpp"
 #include "frontend/ast/parser/parselets/prefix/PrefixParselet.hpp"
+#include <iostream>
+#include <memory>
 #include <unordered_map>
 
 class InfixParselet;
@@ -55,45 +57,37 @@ public:
 
   Token lookAhead() { return lexer->lookAhead(1); }
 
-  std::vector<std::unique_ptr<Stmt>> parse() {
-
-    std::vector<std::unique_ptr<Stmt>> exprs;
+  std::unique_ptr<ProgramNode> parse() {
+    std::vector<std::unique_ptr<Stmt>> statements;
     while (currentToken.getType() != tok_eof) {
-
-      exprs.push_back(parseStatement());
-
+      statements.push_back(parseStatement());
       if (lookAhead().getType() == tok_eof) {
         break;
       }
-    };
-    return exprs;
+    }
+    return std::make_unique<ProgramNode>(std::move(statements));
   }
 
-  // New method to parse individual statements
   std::unique_ptr<Stmt> parseStatement() {
-    // Check for variable declaration
 
     if (lookAhead().getType() == tok_var) {
       return parseVarDeclaration();
     }
 
-    // If it's not a specific statement type, it must be an expression statement
     return parseExpressionStatement();
   }
 
   std::unique_ptr<Stmt> parseVarDeclaration() {
-    consume(tok_var); // Consume 'var' keyword
+    consume(tok_var);
 
-    // Get variable name
     Token nameToken = consume(tok_identifier);
     std::string name = nameToken.getText();
 
-    // Handle initialization
-    consume(tok_assign); // Expect '='
+    consume(tok_assign);
 
     auto initializer = parseExpression();
 
-    consume(tok_semicolon); // Expect ';'
+    consume(tok_semicolon);
     return std::make_unique<VarDeclarationStmt>(std::move(name),
                                                 std::move(initializer));
   }

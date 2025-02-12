@@ -39,15 +39,10 @@ private:
 
 public:
   static std::unique_ptr<Scope>
-  createSymbolTable(const std::vector<std::unique_ptr<Stmt>> &ast) {
+  createSymbolTable(const std::unique_ptr<Stmt> &ast) {
     SymbolTableBuilder builder;
-
     builder.currentScope = std::make_unique<Scope>(nullptr, ScopeType::Global);
-
-    for (const auto &stmt : ast) {
-      stmt->accept(builder);
-    }
-
+    ast->accept(builder);
     return std::move(builder.currentScope);
   }
 

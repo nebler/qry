@@ -15,10 +15,9 @@ int main(int argc, char *argv[]) {
   Lexer lexer(file);
   qryParser parser(&lexer);
 
-  std::vector<std::unique_ptr<Stmt>> statements = parser.parse();
-  for (const auto &stmt : statements) {
-    std::cout << stmt->print() << std::endl;
-  }
+  std::unique_ptr<ASTNode> tree = parser.parse();
+
+  std::cout << tree->print() << std::endl;
 
   return 0;
 }
