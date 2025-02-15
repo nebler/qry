@@ -56,8 +56,6 @@ Token Lexer::findCharToken(char key) {
 }
 
 Token Lexer::gettok() {
-  // Skip whitespace
-
   while (isspace(lastChar)) {
     lastChar = advance();
   }

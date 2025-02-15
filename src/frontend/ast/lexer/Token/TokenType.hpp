@@ -22,7 +22,9 @@ enum TokenType {
   tok_semicolon = ';',
   tok_assign = '=',
   tok_undefined = -999,
+
   tok_int = -100,
   tok_bool = -101,
-  tok_float = -102
+  tok_float = -102,
+  tok_string = -103
 };

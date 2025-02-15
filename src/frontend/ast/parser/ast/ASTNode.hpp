@@ -5,7 +5,6 @@
 #include <string>
 #include <vector>
 
-// First, we define our kind enums
 enum class ExprKind {
   Number,
   Variable,
@@ -26,38 +25,30 @@ enum class ExprKind {
 
 enum class StmtKind { VarDeclaration, Expression, ProgramNode };
 
-// Forward declare visitor
 class ASTVisitor;
-// Forward declare Token
 class Token;
 
-// Our base AST node - everything inherits from this
 struct ASTNode {
   virtual ~ASTNode() = default;
   virtual void accept(ASTVisitor &visitor) = 0;
   virtual std::string print() const = 0;
 };
 
-// Base class for all expressions
 struct Expr : ASTNode {
   [[nodiscard]] virtual auto kind() const -> ExprKind = 0;
 };
 
-// Base class for all statements
 struct Stmt : ASTNode {
   [[nodiscard]] virtual auto kind() const -> StmtKind = 0;
 };
 
-// Add this to your ASTNode.hpp
 struct ProgramNode : Stmt {
   std::vector<std::unique_ptr<Stmt>> statements;
 
   explicit ProgramNode(std::vector<std::unique_ptr<Stmt>> stmts)
       : statements(std::move(stmts)) {}
 
-  void accept(ASTVisitor &visitor) override {
-    // You'll need to add corresponding visitor method
-  }
+  void accept(ASTVisitor &visitor) override {}
 
   [[nodiscard]] auto kind() const -> StmtKind override {
     return StmtKind::ProgramNode;
@@ -72,13 +63,12 @@ struct ProgramNode : Stmt {
   }
 };
 
-// Now for our concrete expression classes
 struct NumberExpr : Expr {
   double value;
 
   explicit NumberExpr(double val) : value(val) {}
 
-  void accept(ASTVisitor &visitor) override; // Defined after visitor class
+  void accept(ASTVisitor &visitor) override;
 
   [[nodiscard]] auto kind() const -> ExprKind override {
     return ExprKind::Number;
@@ -228,8 +218,6 @@ struct MultiplicationBinaryExpr : BinaryExpr {
     return "BinaryExpr: \n" + lhs->print() + " * " + rhs->print() + "\n";
   }
 };
-
-// Similar for other binary expressions...
 
 struct PrefixExpr : Expr {
   std::unique_ptr<Expr> right;

@@ -5,7 +5,6 @@
 #include "frontend/ast/parser/ast/ASTNode.hpp"
 #include "frontend/ast/parser/parselets/infix/InfixParselet.hpp"
 #include "frontend/ast/parser/parselets/prefix/PrefixParselet.hpp"
-#include <iostream>
 #include <memory>
 #include <unordered_map>
 
@@ -94,7 +93,7 @@ public:
 
   std::unique_ptr<Stmt> parseExpressionStatement() {
     auto expr = parseExpression();
-    consume(tok_semicolon); // Expect ';'
+    consume(tok_semicolon);
     return std::make_unique<ExpressionStmt>(std::move(expr));
   }
 
