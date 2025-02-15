@@ -23,16 +23,46 @@ TEST(Lexer, identifierToken) {
   EXPECT_EQ(identifier, tokIdentifier);
 }
 
-TEST(Lexer, numberToken) {
+TEST(Lexer, intToken) {
 
-  std::istringstream input("42.0");
+  std::istringstream input("42");
 
   Lexer lexer = Lexer(input);
   Token token = lexer.gettok();
-  Token tokNumberOutput = Token{tok_number, "42.0"};
+  Token tokNumberOutput = Token{tok_int_number, "42"};
 
   EXPECT_EQ(token, tokNumberOutput);
   EXPECT_EQ(lexer.getNumVal(), 42);
+}
+
+TEST(Lexer, floatToken) {
+
+  std::istringstream input("42.5");
+
+  Lexer lexer = Lexer(input);
+  Token token = lexer.gettok();
+  Token tokNumberOutput = Token{tok_float_number, "42.5"};
+
+  EXPECT_EQ(token, tokNumberOutput);
+  EXPECT_EQ(lexer.getNumVal(), 42.5);
+}
+
+TEST(Lexer, tureAndFalse) {
+
+  std::istringstream input("true");
+
+  Lexer lexer = Lexer(input);
+  Token token = lexer.gettok();
+  std::cout << token.getType() << token.getText() << std::endl;
+  Token tokTrueOutput = Token{tok_bool_value, "true"};
+  EXPECT_EQ(token, tokTrueOutput);
+
+  std::istringstream input2("false");
+
+  lexer = Lexer(input2);
+  token = lexer.gettok();
+  Token tokFalseOutput = Token{tok_bool_value, "false"};
+  EXPECT_EQ(token, tokFalseOutput);
 }
 
 TEST(Lexer, externToken) {
@@ -80,7 +110,7 @@ TEST(Lexer, skipAllWhiteSpaces) {
 }
 
 TEST(Lexer, allTokens) {
-  std::istringstream input("def foo(x) extern 42.0");
+  std::istringstream input("def foo(x) extern 42");
 
   Lexer lexer = Lexer(input);
 
@@ -116,9 +146,9 @@ TEST(Lexer, allTokens) {
 
   // Expect token: "42.0"
   Token tokenNumberOutput = lexer.gettok();
-  Token tokNumber = Token{tok_number, "42.0"};
+  Token tokNumber = Token{tok_int_number, "42"};
   EXPECT_EQ(tokNumber, tokenNumberOutput);
-  EXPECT_EQ(lexer.getNumVal(), 42.0); // Verify numeric value
+  EXPECT_EQ(lexer.getNumVal(), 42); // Verify numeric value
 
   // Expect token: eof
   Token tokEOFOut = lexer.gettok();
@@ -127,7 +157,7 @@ TEST(Lexer, allTokens) {
 }
 
 TEST(Lexer, moreComplexFunction) {
-  std::istringstream input("def foo(x y) x+foo(y, 4.0);");
+  std::istringstream input("def foo(x y) x+foo(y, 4.2);");
 
   Lexer lexer = Lexer(input);
 
@@ -195,9 +225,9 @@ TEST(Lexer, moreComplexFunction) {
 
   // Expect token: "4.0"
   Token tokenNumberOutput = lexer.gettok();
-  Token tokNumber = Token{tok_number, "4.0"};
+  Token tokNumber = Token{tok_float_number, "4.2"};
   EXPECT_EQ(tokNumber, tokenNumberOutput);
-  EXPECT_EQ(lexer.getNumVal(), 4.0);
+  EXPECT_EQ(lexer.getNumVal(), 4.2);
 
   // Expect token: ")"
   Token tokRightParen2 = lexer.gettok();

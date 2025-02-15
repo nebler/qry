@@ -1,5 +1,6 @@
 #pragma once
 #include "frontend/ast/lexer/token/Token.hpp"
+#include "frontend/ast/parser/types/ASTType.hpp"
 #include <memory>
 #include <sstream>
 #include <string>
@@ -20,7 +21,11 @@ enum class ExprKind {
   BinaryMinus,
   BinaryDivision,
   BinaryExponent,
-  BinaryMultiplication
+  BinaryMultiplication,
+  StringExpr,
+  IntExpr,
+  BoolExpr,
+  FloatExpr
 };
 
 enum class StmtKind { VarDeclaration, Expression, ProgramNode };
@@ -35,6 +40,7 @@ struct ASTNode {
 };
 
 struct Expr : ASTNode {
+  ASTType type;
   [[nodiscard]] virtual auto kind() const -> ExprKind = 0;
 };
 
@@ -63,26 +69,70 @@ struct ProgramNode : Stmt {
   }
 };
 
-struct NumberExpr : Expr {
-  double value;
-
-  explicit NumberExpr(double val) : value(val) {}
+struct StringExpr : Expr {
+  std::string val;
+  explicit StringExpr(std::string val) : val(val) { type = ASTType::STRING; }
 
   void accept(ASTVisitor &visitor) override;
 
   [[nodiscard]] auto kind() const -> ExprKind override {
-    return ExprKind::Number;
+    return ExprKind::StringExpr;
+  }
+
+  std::string print() const override { return "StringExpr: " + val + "\n"; }
+};
+
+struct BoolExpr : Expr {
+  bool val;
+  explicit BoolExpr(bool val) : val(val) { type = ASTType::BOOL; }
+
+  void accept(ASTVisitor &visitor) override;
+
+  [[nodiscard]] auto kind() const -> ExprKind override {
+    return ExprKind::BoolExpr;
   }
 
   std::string print() const override {
-    return "NumberExpr: " + std::to_string(value) + "\n";
+    return "BoolExpr: " + std::to_string(val) + "\n";
+  }
+};
+
+struct IntExpr : Expr {
+  double value;
+  explicit IntExpr(int val) : value(val) { type = ASTType::INT; }
+
+  void accept(ASTVisitor &visitor) override;
+
+  [[nodiscard]] auto kind() const -> ExprKind override {
+    return ExprKind::IntExpr;
+  }
+
+  std::string print() const override {
+    return "IntExpr: " + std::to_string(value) + "\n";
+  }
+};
+
+struct FloatExpr : Expr {
+  double value;
+  explicit FloatExpr(double val) : value(val) { type = ASTType::FLOAT; }
+
+  void accept(ASTVisitor &visitor) override;
+
+  [[nodiscard]] auto kind() const -> ExprKind override {
+    return ExprKind::FloatExpr;
+  }
+
+  std::string print() const override {
+    return "FloatExpr: " + std::to_string(value) + "\n";
   }
 };
 
 struct IdentifierExpr : Expr {
   std::string identifier;
 
-  explicit IdentifierExpr(std::string id) : identifier(std::move(id)) {}
+  explicit IdentifierExpr(std::string id) : identifier(std::move(id)) {
+    type = ASTType::UNKNOWN;
+  }
 
   void accept(ASTVisitor &visitor) override;
 
@@ -99,7 +149,9 @@ struct AssignExpr : Expr {
   std::string name;
   std::unique_ptr<Expr> right;
   AssignExpr(std::string name, std::unique_ptr<Expr> right)
-      : name(std::move(name)), right(std::move(right)) {}
+      : name(std::move(name)), right(std::move(right)) {
+    type = ASTType::UNKNOWN;
+  }
 
   [[nodiscard]] auto kind() const -> ExprKind override {
     return ExprKind::Assignment;
@@ -115,7 +167,9 @@ struct FunctionExpr : Expr {
   std::string name;
   std::vector<std::unique_ptr<Expr>> args;
   FunctionExpr(std::string name, std::vector<std::unique_ptr<Expr>> args)
-      : name(std::move(name)), args(std::move(args)) {}
+      : name(std::move(name)), args(std::move(args)) {
+    type = ASTType::UNKNOWN;
+  }
 
   [[nodiscard]] auto kind() const -> ExprKind override {
     return ExprKind::Function;
@@ -138,7 +192,9 @@ struct BinaryExpr : Expr {
   std::unique_ptr<Expr> rhs;
 
   BinaryExpr(std::unique_ptr<Expr> lhs, std::unique_ptr<Expr> rhs)
-      : lhs(std::move(lhs)), rhs(std::move(rhs)) {}
+      : lhs(std::move(lhs)), rhs(std::move(rhs)) {
+    type = ASTType::UNKNOWN;
+  }
 
   void accept(ASTVisitor &visitor) override;
 
@@ -224,7 +280,9 @@ struct PrefixExpr : Expr {
   Token op;
 
   PrefixExpr(Token op, std::unique_ptr<Expr> right)
-      : op(std::move(op)), right(std::move(right)) {}
+      : op(std::move(op)), right(std::move(right)) {
+    type = right->type;
+  }
 
   void accept(ASTVisitor &visitor) override;
 
@@ -243,7 +301,9 @@ struct CallExpr : Expr {
 
   CallExpr(std::unique_ptr<Expr> callee,
            std::vector<std::unique_ptr<Expr>> args)
-      : callee(std::move(callee)), args(std::move(args)) {}
+      : callee(std::move(callee)), args(std::move(args)) {
+    type = ASTType::UNKNOWN;
+  }
 
   void accept(ASTVisitor &visitor) override;
 
@@ -265,11 +325,12 @@ struct CallExpr : Expr {
 struct VarDeclarationStmt : Stmt {
   std::string name;
   std::unique_ptr<Expr> initializer;
-
-  VarDeclarationStmt(std::string name, std::unique_ptr<Expr> init)
-      : name(std::move(name)), initializer(std::move(init)) {}
+  ASTType type;
 
   void accept(ASTVisitor &visitor) override;
+
+  VarDeclarationStmt(std::string name, std::unique_ptr<Expr> init, ASTType type)
+      : name(std::move(name)), initializer(std::move(init)), type(type) {}
 
   [[nodiscard]] auto kind() const -> StmtKind override {
     return StmtKind::VarDeclaration;
@@ -301,7 +362,10 @@ public:
   virtual ~ASTVisitor() = default;
 
   // Expression visitors
-  virtual void visitNumberExpr(const NumberExpr *expr) = 0;
+  virtual void visitIntExpr(const IntExpr *expr) = 0;
+  virtual void visitFloatExpr(const FloatExpr *expr) = 0;
+  virtual void visitStringExpr(const StringExpr *expr) = 0;
+  virtual void visitBoolExpr(const BoolExpr *expr) = 0;
   virtual void visitIdentifierExpr(const IdentifierExpr *expr) = 0;
   virtual void visitAssignExpr(const AssignExpr *expr) = 0;
   virtual void visitFunctionExpr(const FunctionExpr *expr) = 0;
@@ -323,7 +387,10 @@ public:
 // Now implement the accept methods for each node type after the ASTVisitor
 // class:
 
-void NumberExpr::accept(ASTVisitor &visitor) { visitor.visitNumberExpr(this); }
+void IntExpr::accept(ASTVisitor &visitor) { visitor.visitIntExpr(this); }
+void FloatExpr::accept(ASTVisitor &visitor) { visitor.visitFloatExpr(this); }
+void BoolExpr::accept(ASTVisitor &visitor) { visitor.visitBoolExpr(this); }
+void StringExpr::accept(ASTVisitor &visitor) { visitor.visitStringExpr(this); }
 
 void IdentifierExpr::accept(ASTVisitor &visitor) {
   visitor.visitIdentifierExpr(this);

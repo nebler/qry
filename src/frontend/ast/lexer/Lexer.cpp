@@ -72,17 +72,20 @@ Token Lexer::gettok() {
     return token;
   }
 
-  // Handle numbers [0-9.]+
   if (isdigit(lastChar) || lastChar == '.') {
     std::string numStr;
+    bool isFloat = false;
+
     do {
+      if (lastChar == '.') {
+        isFloat = true;
+      }
       numStr += lastChar;
       lastChar = advance();
     } while (isdigit(lastChar) || lastChar == '.');
-
     setNumVal(strtod(numStr.c_str(), nullptr));
-    // rerturn numbers token and give it the value numStr.c_str()
-    return Token{tok_number, numStr};
+    // Return the appropriate token based on whether we saw a decimal point
+    return Token{isFloat ? tok_float_number : tok_int_number, numStr};
   }
 
   // simple look up into chars map

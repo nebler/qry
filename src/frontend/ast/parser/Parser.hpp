@@ -5,6 +5,8 @@
 #include "frontend/ast/parser/ast/ASTNode.hpp"
 #include "frontend/ast/parser/parselets/infix/InfixParselet.hpp"
 #include "frontend/ast/parser/parselets/prefix/PrefixParselet.hpp"
+#include "frontend/ast/parser/types/ASTType.hpp"
+#include "frontend/ast/parser/types/TokenToConverter.hpp"
 #include <memory>
 #include <unordered_map>
 
@@ -82,13 +84,17 @@ public:
     Token nameToken = consume(tok_identifier);
     std::string name = nameToken.getText();
 
+    consume(tok_colon);
+
+    auto type = tokenToTypeConverter(currentToken);
+
     consume(tok_assign);
 
     auto initializer = parseExpression();
 
     consume(tok_semicolon);
     return std::make_unique<VarDeclarationStmt>(std::move(name),
-                                                std::move(initializer));
+                                                std::move(initializer), type);
   }
 
   std::unique_ptr<Stmt> parseExpressionStatement() {

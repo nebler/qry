@@ -28,5 +28,8 @@ int main(int argc, char *argv[]) {
   for (const auto &foo : symbolTable->symbols) {
     foo.second.print();
   }
+
+  // type chekcing here?
+
   return 0;
 }

@@ -93,8 +93,20 @@ public:
     visitBinaryExpr(expr);
   }
 
-  void visitNumberExpr(const NumberExpr * /*expr*/) override {
+  void visitIntExpr(const IntExpr *expr) override {
     // Nothing to do for numbers
+  }
+
+  void visitFloatExpr(const FloatExpr *expr) override {
+    // Nothing to do for numbers
+  }
+
+  void visitStringExpr(const StringExpr *expr) override {
+    // Nothing to do for string
+  }
+
+  void visitBoolExpr(const BoolExpr *exprs) override {
+    // Nothing to do for bool
   }
 
   void visitPrefixExpr(const PrefixExpr *expr) override {
