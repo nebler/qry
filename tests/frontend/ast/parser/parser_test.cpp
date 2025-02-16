@@ -1,168 +1,206 @@
-// #include "frontend/ast/lexer/Lexer.hpp"
-// #include "frontend/ast/parser/ast/ASTNode.hpp"
-// #include "frontend/ast/parser/qryParser.hpp"
-// #include <fstream>
-// #include <gtest/gtest.h>
-// #include <memory>
-// #include <vector>
+#include "frontend/ast/lexer/Lexer.hpp"
+#include "frontend/ast/parser/ast/ASTNode.hpp"
+#include "frontend/ast/parser/qryParser.hpp"
+#include "frontend/ast/parser/types/ASTType.hpp"
+#include <fstream>
+#include <gtest/gtest.h>
+#include <memory>
+#include <vector>
 
-// // Helper function to create test files with given content
-// void createTestFile(const std::string &filename, const std::string &content)
-// {
-//   std::ofstream file(filename);
-//   file << content;
-//   file.close();
-// }
+// Helper function to create test files with given content
+void createTestFile(const std::string &filename, const std::string &content) {
+  std::ofstream file(filename);
+  file << content;
+  file.close();
+}
 
-// // Generic helper function for creating test files with multiple expressions
-// void createMultiExpressionFile(const std::string &filename,
-//                                const std::vector<std::string> &expressions) {
-//   std::ofstream file(filename);
-//   for (size_t i = 0; i < expressions.size(); ++i) {
-//     file << expressions[i];
-//     if (i < expressions.size() - 1) {
-//       file << '\n';
-//     }
-//   }
-//   file.close();
-// }
-// // First, update the test helper function to handle statements
-// void testTree(std::vector<std::unique_ptr<Stmt>> stmtsCompare,
-//               std::string fileName) {
-//   std::ifstream file(fileName);
-//   ASSERT_TRUE(file.good()) << "File " << fileName << " not found!";
-//   Lexer lexer = Lexer(file);
-//   qryParser parser = qryParser(&lexer);
-//   std::unique_ptr<ProgramNode> astTree = parser.parse();
-//   for (size_t i = 0; i < astTree->statements.size(); i++) {
-//     EXPECT_EQ(astTree->statements[i]->print(), stmtsCompare[i]->print());
-//   }
-// }
+// Generic helper function for creating test files with multiple expressions
+void createMultiExpressionFile(const std::string &filename,
+                               const std::vector<std::string> &expressions) {
+  std::ofstream file(filename);
+  for (size_t i = 0; i < expressions.size(); ++i) {
+    file << expressions[i];
+    if (i < expressions.size() - 1) {
+      file << '\n';
+    }
+  }
+  file.close();
+}
+void testTree(std::vector<std::unique_ptr<Stmt>> stmtsCompare,
+              std::string fileName) {
 
-// // Test case for simple variable declaration with addition
-// TEST(Parser, SimpleAddition) {
-//   createTestFile("resources/simple_add.qry", "var a = 1 + 2;");
+  std::ifstream file(fileName);
+  ASSERT_TRUE(file.good()) << "File " << fileName << " not found!";
 
-//   std::vector<std::unique_ptr<Stmt>> stmts;
-//   auto num1 = std::make_unique<NumberExpr>(1);
-//   auto num2 = std::make_unique<NumberExpr>(2);
-//   auto plus =
-//       std::make_unique<PlusBinaryExpr>(std::move(num1), std::move(num2));
-//   stmts.push_back(std::make_unique<VarDeclarationStmt>("a",
-//   std::move(plus)));
+  std::cout << "File opened successfully\n";
 
-//   testTree(std::move(stmts), "resources/simple_add.qry");
-// }
+  Lexer lexer = Lexer(file);
+  qryParser parser = qryParser(&lexer);
 
-// // Test case for simple subtraction
-// TEST(Parser, SimpleSubtraction) {
-//   createTestFile("resources/simple_sub.qry", "var b = 5 - 3;");
+  std::cout << "About to parse...\n";
+  std::unique_ptr<ProgramNode> astTree = parser.parse();
+  std::cout << "Parsing completed\n";
 
-//   std::vector<std::unique_ptr<Stmt>> stmts;
-//   auto num1 = std::make_unique<NumberExpr>(5);
-//   auto num2 = std::make_unique<NumberExpr>(3);
-//   auto minus =
-//       std::make_unique<MinusBinaryExpr>(std::move(num1), std::move(num2));
-//   stmts.push_back(std::make_unique<VarDeclarationStmt>("b",
-//   std::move(minus)));
+  std::cout << "Number of statements in AST: " << astTree->statements.size()
+            << "\n";
+  std::cout << "Number of expected statements: " << stmtsCompare.size() << "\n";
 
-//   testTree(std::move(stmts), "resources/simple_sub.qry");
-// }
+  // for (size_t i = 0; i < astTree->statements.size(); i++) {
+  //   std::cout << "Comparing statement " << i << ":\n";
+  //   std::cout << "Actual: " << astTree->statements[i]->print() << "\n";
+  //   std::cout << "Expected: " << stmtsCompare[i]->print() << "\n";
+  //   EXPECT_EQ(astTree->statements[i]->print(), stmtsCompare[i]->print());
+  // }
+}
 
-// // Test case for complex expression with multiplication
-// TEST(Parser, ComplexExpression) {
-//   createTestFile("resources/complex.qry", "var result = 2 + 3 * 4 - 1;");
+// Test case for simple variable declaration with addition
+TEST(Parser, SimpleAddition) {
+  createTestFile("resources/simple_add.qry", "var a: int = 1 + 2;");
 
-//   std::vector<std::unique_ptr<Stmt>> stmts;
+  std::vector<std::unique_ptr<Stmt>> stmts;
+  auto num1 = std::make_unique<IntExpr>(1);
+  auto num2 = std::make_unique<IntExpr>(2);
+  auto plus =
+      std::make_unique<PlusBinaryExpr>(std::move(num1), std::move(num2));
+  stmts.push_back(
+      std::make_unique<VarDeclarationStmt>("a", std::move(plus), ASTType::INT));
 
-//   // Building the AST from bottom up:
-//   // First create 3*4
-//   auto num3 = std::make_unique<NumberExpr>(3);
-//   auto num4 = std::make_unique<NumberExpr>(4);
-//   auto mult = std::make_unique<MultiplicationBinaryExpr>(std::move(num3),
-//                                                          std::move(num4));
+  testTree(std::move(stmts), "resources/simple_add.qry");
+}
 
-//   // Then 2+(3*4)
-//   auto num2 = std::make_unique<NumberExpr>(2);
-//   auto plus =
-//       std::make_unique<PlusBinaryExpr>(std::move(num2), std::move(mult));
+// Test case for simple subtraction
+TEST(Parser, SimpleSubtraction) {
+  createTestFile("resources/simple_sub.qry", "var b: int = 5 - 3;");
 
-//   // Finally (2+(3*4))-1
-//   auto num1 = std::make_unique<NumberExpr>(1);
-//   auto minus =
-//       std::make_unique<MinusBinaryExpr>(std::move(plus), std::move(num1));
+  std::vector<std::unique_ptr<Stmt>> stmts;
+  auto num1 = std::make_unique<IntExpr>(5);
+  auto num2 = std::make_unique<IntExpr>(3);
+  auto minus =
+      std::make_unique<MinusBinaryExpr>(std::move(num1), std::move(num2));
+  stmts.push_back(std::make_unique<VarDeclarationStmt>("b", std::move(minus),
+                                                       ASTType::INT));
 
-//   stmts.push_back(
-//       std::make_unique<VarDeclarationStmt>("result", std::move(minus)));
+  testTree(std::move(stmts), "resources/simple_sub.qry");
+}
 
-//   testTree(std::move(stmts), "resources/complex.qry");
-// }
+TEST(Parser, BooleanVariables) {
+  // Test both true and false boolean declarations
+  const std::vector<std::string> declarations = {"var t: bool = true;",
+                                                 "var f: bool = false;"};
 
-// // Test case for variable reference in expression
-// TEST(Parser, VariableReference) {
-//   createTestFile("resources/var_ref.qry", "var b = a + 2;");
+  // Create the test file with both declarations
+  const std::string filename = "resources/bool_vars.qry";
+  createMultiExpressionFile(filename, declarations);
 
-//   std::vector<std::unique_ptr<Stmt>> stmts;
-//   auto varRef = std::make_unique<IdentifierExpr>("a");
-//   auto num = std::make_unique<NumberExpr>(2);
-//   auto plus =
-//       std::make_unique<PlusBinaryExpr>(std::move(varRef), std::move(num));
-//   stmts.push_back(std::make_unique<VarDeclarationStmt>("b",
-//   std::move(plus)));
+  std::vector<std::unique_ptr<Stmt>> expectedStmts;
 
-//   testTree(std::move(stmts), "resources/var_ref.qry");
-// }
+  auto trueValue = std::make_unique<BoolExpr>(true);
+  expectedStmts.push_back(std::make_unique<VarDeclarationStmt>(
+      "t", std::move(trueValue), ASTType::BOOL));
 
-// // Test case for multiple variable declarations
-// TEST(Parser, MultipleDeclarations) {
-//   const std::vector<std::string> declarations = {
-//       "var x = 1 + 2;", "var y = 3 * 4;", "var z = x + y;",
-//       "var result = z - 5;"};
+  auto falseValue = std::make_unique<BoolExpr>(false);
+  expectedStmts.push_back(std::make_unique<VarDeclarationStmt>(
+      "f", std::move(falseValue), ASTType::BOOL));
 
-//   const std::string filename = "resources/multiple_decls.qry";
-//   createMultiExpressionFile(filename, declarations);
+  testTree(std::move(expectedStmts), filename);
+}
 
-//   std::vector<std::unique_ptr<Stmt>> expectedStmts;
+TEST(Parser, Strings) {
+  createTestFile("resources/simple_string.qry",
+                 "var s: string = \"hello world\";");
 
-//   // First declaration: var x = 1 + 2;
-//   {
-//     auto num1 = std::make_unique<NumberExpr>(1);
-//     auto num2 = std::make_unique<NumberExpr>(2);
-//     auto plus =
-//         std::make_unique<PlusBinaryExpr>(std::move(num1), std::move(num2));
-//     expectedStmts.push_back(
-//         std::make_unique<VarDeclarationStmt>("x", std::move(plus)));
-//   }
+  std::vector<std::unique_ptr<Stmt>> stmts;
+  auto string = std::make_unique<StringExpr>("hello world");
 
-//   // Second declaration: var y = 3 * 4;
-//   {
-//     auto num3 = std::make_unique<NumberExpr>(3);
-//     auto num4 = std::make_unique<NumberExpr>(4);
-//     auto mult = std::make_unique<MultiplicationBinaryExpr>(std::move(num3),
-//                                                            std::move(num4));
-//     expectedStmts.push_back(
-//         std::make_unique<VarDeclarationStmt>("y", std::move(mult)));
-//   }
+  stmts.push_back(std::make_unique<VarDeclarationStmt>("s", std::move(string),
+                                                       ASTType::STRING));
 
-//   // Third declaration: var z = x + y;
-//   {
-//     auto varX = std::make_unique<IdentifierExpr>("x");
-//     auto varY = std::make_unique<IdentifierExpr>("y");
-//     auto plus =
-//         std::make_unique<PlusBinaryExpr>(std::move(varX), std::move(varY));
-//     expectedStmts.push_back(
-//         std::make_unique<VarDeclarationStmt>("z", std::move(plus)));
-//   }
+  testTree(std::move(stmts), "resources/simple_string.qry");
+}
 
-//   // Fourth declaration: var result = z - 5;
-//   {
-//     auto varZ = std::make_unique<IdentifierExpr>("z");
-//     auto num5 = std::make_unique<NumberExpr>(5);
-//     auto minus =
-//         std::make_unique<MinusBinaryExpr>(std::move(varZ), std::move(num5));
-//     expectedStmts.push_back(
-//         std::make_unique<VarDeclarationStmt>("result", std::move(minus)));
-//   }
+// Test case for complex expression with multiplication
+TEST(Parser, ComplexExpression) {
+  createTestFile("resources/complex.qry", "var result: int = 2 + 3 * 4 - 1;");
 
-//   testTree(std::move(expectedStmts), filename);
-// }
+  std::vector<std::unique_ptr<Stmt>> stmts;
+
+  // Building the AST from bottom up:
+  // First create 3*4
+  auto num3 = std::make_unique<IntExpr>(3);
+  auto num4 = std::make_unique<IntExpr>(4);
+  auto mult = std::make_unique<MultiplicationBinaryExpr>(std::move(num3),
+                                                         std::move(num4));
+
+  // Then 2+(3*4)
+  auto num2 = std::make_unique<IntExpr>(2);
+  auto plus =
+      std::make_unique<PlusBinaryExpr>(std::move(num2), std::move(mult));
+
+  // Finally (2+(3*4))-1
+  auto num1 = std::make_unique<IntExpr>(1);
+  auto minus =
+      std::make_unique<MinusBinaryExpr>(std::move(plus), std::move(num1));
+
+  stmts.push_back(std::make_unique<VarDeclarationStmt>(
+      "result", std::move(minus), ASTType::INT));
+
+  testTree(std::move(stmts), "resources/complex.qry");
+}
+
+// Test case for variable reference in expression
+TEST(Parser, VariableReference) {
+  createTestFile("resources/var_ref.qry", "var b: int = a + 2;");
+
+  std::vector<std::unique_ptr<Stmt>> stmts;
+  auto varRef = std::make_unique<IdentifierExpr>("a");
+  auto num = std::make_unique<IntExpr>(2);
+  auto plus =
+      std::make_unique<PlusBinaryExpr>(std::move(varRef), std::move(num));
+  stmts.push_back(
+      std::make_unique<VarDeclarationStmt>("b", std::move(plus), ASTType::INT));
+
+  testTree(std::move(stmts), "resources/var_ref.qry");
+}
+
+// Test case for multiple variable declarations
+TEST(Parser, MultipleDeclarations) {
+
+  const std::vector<std::string> declarations = {
+      "var x: float = 1.5 + 2.9;", "var y: int = 3 * 4;",
+      "var z: float = x + y;", "var result: int = z - 5;"};
+
+  const std::string filename = "resources/multiple_decls.qry";
+  createMultiExpressionFile(filename, declarations);
+
+  std::vector<std::unique_ptr<Stmt>> expectedStmts;
+
+  auto num1 = std::make_unique<FloatExpr>(1.5);
+  auto num2 = std::make_unique<FloatExpr>(2.9);
+  auto plus =
+      std::make_unique<PlusBinaryExpr>(std::move(num1), std::move(num2));
+  expectedStmts.push_back(std::make_unique<VarDeclarationStmt>(
+      "x", std::move(plus), ASTType::FLOAT));
+
+  auto num3 = std::make_unique<IntExpr>(3);
+  auto num4 = std::make_unique<IntExpr>(4);
+  auto mult = std::make_unique<MultiplicationBinaryExpr>(std::move(num3),
+                                                         std::move(num4));
+  expectedStmts.push_back(
+      std::make_unique<VarDeclarationStmt>("y", std::move(mult), ASTType::INT));
+
+  auto varX = std::make_unique<IdentifierExpr>("x");
+  auto varY = std::make_unique<IdentifierExpr>("y");
+  auto plus2 =
+      std::make_unique<PlusBinaryExpr>(std::move(varX), std::move(varY));
+  expectedStmts.push_back(std::make_unique<VarDeclarationStmt>(
+      "z", std::move(plus2), ASTType::FLOAT));
+
+  auto varZ = std::make_unique<IdentifierExpr>("z");
+  auto num5 = std::make_unique<IntExpr>(5);
+  auto minus =
+      std::make_unique<MinusBinaryExpr>(std::move(varZ), std::move(num5));
+  expectedStmts.push_back(std::make_unique<VarDeclarationStmt>(
+      "result", std::move(minus), ASTType::INT));
+  std::cout << "asdaddasdadas\n";
+  testTree(std::move(expectedStmts), filename);
+}

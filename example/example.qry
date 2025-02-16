@@ -1,4 +1,5 @@
 var a: int = 1+2;
-var b: bool = true;
-var c: str = "hello world";
-var d: float = 2.5;
+var z: float = 1.0+2.5;
+var b: string = "Hello World";
+var c: bool = true;
+var e: bool = false;

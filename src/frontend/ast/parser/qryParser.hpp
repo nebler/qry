@@ -4,6 +4,7 @@
 #include "frontend/ast/parser/Parser.hpp"
 #include "frontend/ast/parser/parselets/infix/BinaryOperatorParselet.hpp"
 #include "frontend/ast/parser/parselets/infix/CallParselet.hpp"
+#include "frontend/ast/parser/parselets/prefix/BoolParselet.hpp"
 #include "frontend/ast/parser/parselets/prefix/FloatParselet.hpp"
 #include "frontend/ast/parser/parselets/prefix/GroupParselet.hpp"
 #include "frontend/ast/parser/parselets/prefix/IdentifierParselet.hpp"
@@ -32,6 +33,9 @@ public:
                      std::unique_ptr<FloatParselet>(new FloatParselet()));
     registerParselet(tok_dobule_quotes,
                      std::unique_ptr<StringParselet>(new StringParselet()));
+
+    registerParselet(tok_bool_value,
+                     std::unique_ptr<BoolParselet>(new BoolParselet()));
     prefix(tok_plus, PREFIX);
     prefix(tok_minus, PREFIX);
     prefix(tok_asterix, PREFIX);

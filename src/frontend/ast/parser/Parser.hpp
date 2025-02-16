@@ -5,7 +5,6 @@
 #include "frontend/ast/parser/ast/ASTNode.hpp"
 #include "frontend/ast/parser/parselets/infix/InfixParselet.hpp"
 #include "frontend/ast/parser/parselets/prefix/PrefixParselet.hpp"
-#include "frontend/ast/parser/types/ASTType.hpp"
 #include "frontend/ast/parser/types/TokenToConverter.hpp"
 #include <memory>
 #include <unordered_map>
@@ -59,7 +58,10 @@ public:
   Token lookAhead() { return lexer->lookAhead(1); }
 
   std::unique_ptr<ProgramNode> parse() {
+
     std::vector<std::unique_ptr<Stmt>> statements;
+    consume();
+
     while (currentToken.getType() != tok_eof) {
       statements.push_back(parseStatement());
       if (lookAhead().getType() == tok_eof) {
@@ -71,7 +73,7 @@ public:
 
   std::unique_ptr<Stmt> parseStatement() {
 
-    if (lookAhead().getType() == tok_var) {
+    if (currentToken.getType() == tok_var) {
       return parseVarDeclaration();
     }
 
@@ -79,8 +81,6 @@ public:
   }
 
   std::unique_ptr<Stmt> parseVarDeclaration() {
-    consume(tok_var);
-
     Token nameToken = consume(tok_identifier);
     std::string name = nameToken.getText();
 
@@ -91,7 +91,6 @@ public:
     consume(tok_assign);
 
     auto initializer = parseExpression();
-
     consume(tok_semicolon);
     return std::make_unique<VarDeclarationStmt>(std::move(name),
                                                 std::move(initializer), type);
@@ -117,6 +116,11 @@ public:
     //                         tokentype::toString(token.getType()));
     //  }
     return consume();
+  }
+
+  Token consumeText() {
+    currentToken = lexer->gettok(false);
+    return currentToken;
   }
 
   Token consume() {

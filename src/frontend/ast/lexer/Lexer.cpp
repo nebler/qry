@@ -55,11 +55,12 @@ Token Lexer::findCharToken(char key) {
   }
 }
 
-Token Lexer::gettok() {
-  while (isspace(lastChar)) {
+// todo refactor
+Token Lexer::gettok(bool skipAllWhiteSpaces) {
+  while (isspace(lastChar) && skipAllWhiteSpaces) {
     lastChar = advance();
   }
-  if (isalpha(lastChar)) {
+  if (isalpha(lastChar) || isspace(lastChar)) {
     identifierStr = lastChar;
     while (isalnum((lastChar = advance()))) {
       identifierStr += lastChar;

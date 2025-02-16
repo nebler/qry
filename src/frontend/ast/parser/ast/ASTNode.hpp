@@ -93,7 +93,11 @@ struct BoolExpr : Expr {
   }
 
   std::string print() const override {
-    return "BoolExpr: " + std::to_string(val) + "\n";
+
+    if (val) {
+      return "BoolExpr: true\n";
+    }
+    return "BoolExpr: false\n";
   }
 };
 

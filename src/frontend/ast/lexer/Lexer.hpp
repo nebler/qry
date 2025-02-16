@@ -16,14 +16,10 @@ private:
 
   // This is evaluated at compile time
   static constexpr std::pair<const char *, TokenType> KEYWORD_TOKENS[] = {
-      {"def", tok_def},
-      {"extern", tok_extern},
-      {"int", tok_int_type},
-      {"bool", tok_bool_type},
-      {"var", tok_var},
-      {"float", tok_float_type},
-      {"string", tok_string_type},
-      {"true", tok_bool_value},
+      {"def", tok_def},         {"extern", tok_extern},
+      {"int", tok_int_type},    {"bool", tok_bool_type},
+      {"var", tok_var},         {"float", tok_float_type},
+      {"str", tok_string_type}, {"true", tok_bool_value},
       {"false", tok_bool_value}};
   static constexpr std::pair<char, TokenType> CHAR_TOKENS[] = {
       {'+', tok_plus},          {'-', tok_minus},       {',', tok_comma},
@@ -44,5 +40,5 @@ public:
 
   void setNumVal(double val) { numVal = val; }
   Token lookAhead(int distance);
-  Token gettok();
+  Token gettok(bool skipAllWhiteSpaces = true);
 };
