@@ -1,6 +1,7 @@
 #pragma once
 
-enum ASTType { INT, FLOAT, STRING, BOOL, UNKNOWN };
+#include <string>
+enum ASTType { INT, FLOAT, STRING, BOOL, UNKNOWN, STRUCT };
 
 // We can add this as a standalone function that works with the enum
 inline std::string toString(ASTType type) {
@@ -15,7 +16,28 @@ inline std::string toString(ASTType type) {
     return "bool";
   case ASTType::UNKNOWN:
     return "unknown";
+  case ASTType::STRUCT:
+    return "struct";
   default:
     return "invalid";
   }
 }
+
+class TypeReference {
+  ASTType basicType = ASTType::UNKNOWN;
+  std::optional<std::string> customTypeName;
+
+public:
+  // For basic types
+  TypeReference(ASTType type) : basicType(type) {}
+
+  TypeReference(std::string name)
+      : basicType(ASTType::STRUCT), customTypeName(std::move(name)) {}
+
+  std::string toString() const {
+    if (customTypeName) {
+      return *customTypeName; // Use the actual name
+    }
+    return ::toString(basicType);
+  }
+};

@@ -6,6 +6,7 @@
 #include "frontend/ast/parser/parselets/infix/InfixParselet.hpp"
 #include "frontend/ast/parser/parselets/prefix/PrefixParselet.hpp"
 #include "frontend/ast/parser/types/TokenToConverter.hpp"
+#include <cstddef>
 #include <memory>
 #include <unordered_map>
 
@@ -77,7 +78,18 @@ public:
       return parseVarDeclaration();
     }
 
+    if (currentToken.getType() == tok_struct) {
+    }
+
     return parseExpressionStatement();
+  }
+
+  std::unique_ptr<Stmt> parseStructDeclaration() {
+    // get the name
+
+    // parse the fields
+
+    return nullptr;
   }
 
   std::unique_ptr<Stmt> parseVarDeclaration() {
@@ -86,7 +98,7 @@ public:
 
     consume(tok_colon);
 
-    auto type = tokenToTypeConverter(currentToken);
+    auto type = TypeReference(tokenToTypeConverter(currentToken));
 
     consume(tok_assign);
 

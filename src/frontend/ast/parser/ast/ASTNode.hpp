@@ -46,7 +46,7 @@ struct ASTNode {
 };
 
 struct Expr : ASTNode {
-  ASTType type;
+  TypeReference type = TypeReference(ASTType::UNKNOWN);
   [[nodiscard]] virtual auto kind() const -> ExprKind = 0;
 };
 
@@ -77,7 +77,9 @@ struct ProgramNode : Stmt {
 
 struct StringExpr : Expr {
   std::string val;
-  explicit StringExpr(std::string val) : val(val) { type = ASTType::STRING; }
+  explicit StringExpr(std::string val) : val(val) {
+    type = TypeReference(ASTType::STRING);
+  }
 
   void accept(ASTVisitor &visitor) override;
 
@@ -109,7 +111,7 @@ struct BoolExpr : Expr {
 
 struct IntExpr : Expr {
   double value;
-  explicit IntExpr(int val) : value(val) { type = ASTType::INT; }
+  explicit IntExpr(int val) : value(val) { type = TypeReference(ASTType::INT); }
 
   void accept(ASTVisitor &visitor) override;
 
@@ -334,11 +336,12 @@ struct CallExpr : Expr {
 struct VarDeclarationStmt : Stmt {
   std::string name;
   std::unique_ptr<Expr> initializer;
-  ASTType type;
+  TypeReference type;
 
   void accept(ASTVisitor &visitor) override;
 
-  VarDeclarationStmt(std::string name, std::unique_ptr<Expr> init, ASTType type)
+  VarDeclarationStmt(std::string name, std::unique_ptr<Expr> init,
+                     TypeReference type)
       : name(std::move(name)), initializer(std::move(init)), type(type) {}
 
   [[nodiscard]] auto kind() const -> StmtKind override {

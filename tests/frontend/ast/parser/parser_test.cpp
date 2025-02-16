@@ -62,8 +62,8 @@ TEST(Parser, SimpleAddition) {
   auto num2 = std::make_unique<IntExpr>(2);
   auto plus =
       std::make_unique<PlusBinaryExpr>(std::move(num1), std::move(num2));
-  stmts.push_back(
-      std::make_unique<VarDeclarationStmt>("a", std::move(plus), ASTType::INT));
+  stmts.push_back(std::make_unique<VarDeclarationStmt>(
+      "a", std::move(plus), TypeReference(ASTType::INT)));
 
   testTree(std::move(stmts), "resources/simple_add.qry");
 }
@@ -77,8 +77,8 @@ TEST(Parser, SimpleSubtraction) {
   auto num2 = std::make_unique<IntExpr>(3);
   auto minus =
       std::make_unique<MinusBinaryExpr>(std::move(num1), std::move(num2));
-  stmts.push_back(std::make_unique<VarDeclarationStmt>("b", std::move(minus),
-                                                       ASTType::INT));
+  stmts.push_back(std::make_unique<VarDeclarationStmt>(
+      "b", std::move(minus), TypeReference(ASTType::INT)));
 
   testTree(std::move(stmts), "resources/simple_sub.qry");
 }
@@ -96,11 +96,11 @@ TEST(Parser, BooleanVariables) {
 
   auto trueValue = std::make_unique<BoolExpr>(true);
   expectedStmts.push_back(std::make_unique<VarDeclarationStmt>(
-      "t", std::move(trueValue), ASTType::BOOL));
+      "t", std::move(trueValue), TypeReference(ASTType::BOOL)));
 
   auto falseValue = std::make_unique<BoolExpr>(false);
   expectedStmts.push_back(std::make_unique<VarDeclarationStmt>(
-      "f", std::move(falseValue), ASTType::BOOL));
+      "f", std::move(falseValue), TypeReference(ASTType::BOOL)));
 
   testTree(std::move(expectedStmts), filename);
 }
@@ -112,8 +112,8 @@ TEST(Parser, Strings) {
   std::vector<std::unique_ptr<Stmt>> stmts;
   auto string = std::make_unique<StringExpr>("hello world");
 
-  stmts.push_back(std::make_unique<VarDeclarationStmt>("s", std::move(string),
-                                                       ASTType::STRING));
+  stmts.push_back(std::make_unique<VarDeclarationStmt>(
+      "s", std::move(string), TypeReference(ASTType::STRING)));
 
   testTree(std::move(stmts), "resources/simple_string.qry");
 }
@@ -142,7 +142,7 @@ TEST(Parser, ComplexExpression) {
       std::make_unique<MinusBinaryExpr>(std::move(plus), std::move(num1));
 
   stmts.push_back(std::make_unique<VarDeclarationStmt>(
-      "result", std::move(minus), ASTType::INT));
+      "result", std::move(minus), TypeReference(ASTType::INT)));
 
   testTree(std::move(stmts), "resources/complex.qry");
 }
@@ -156,8 +156,8 @@ TEST(Parser, VariableReference) {
   auto num = std::make_unique<IntExpr>(2);
   auto plus =
       std::make_unique<PlusBinaryExpr>(std::move(varRef), std::move(num));
-  stmts.push_back(
-      std::make_unique<VarDeclarationStmt>("b", std::move(plus), ASTType::INT));
+  stmts.push_back(std::make_unique<VarDeclarationStmt>(
+      "b", std::move(plus), TypeReference(ASTType::INT)));
 
   testTree(std::move(stmts), "resources/var_ref.qry");
 }
@@ -179,28 +179,28 @@ TEST(Parser, MultipleDeclarations) {
   auto plus =
       std::make_unique<PlusBinaryExpr>(std::move(num1), std::move(num2));
   expectedStmts.push_back(std::make_unique<VarDeclarationStmt>(
-      "x", std::move(plus), ASTType::FLOAT));
+      "x", std::move(plus), TypeReference(ASTType::FLOAT)));
 
   auto num3 = std::make_unique<IntExpr>(3);
   auto num4 = std::make_unique<IntExpr>(4);
   auto mult = std::make_unique<MultiplicationBinaryExpr>(std::move(num3),
                                                          std::move(num4));
-  expectedStmts.push_back(
-      std::make_unique<VarDeclarationStmt>("y", std::move(mult), ASTType::INT));
+  expectedStmts.push_back(std::make_unique<VarDeclarationStmt>(
+      "y", std::move(mult), TypeReference(ASTType::INT)));
 
   auto varX = std::make_unique<IdentifierExpr>("x");
   auto varY = std::make_unique<IdentifierExpr>("y");
   auto plus2 =
       std::make_unique<PlusBinaryExpr>(std::move(varX), std::move(varY));
   expectedStmts.push_back(std::make_unique<VarDeclarationStmt>(
-      "z", std::move(plus2), ASTType::FLOAT));
+      "z", std::move(plus2), TypeReference(ASTType::FLOAT)));
 
   auto varZ = std::make_unique<IdentifierExpr>("z");
   auto num5 = std::make_unique<IntExpr>(5);
   auto minus =
       std::make_unique<MinusBinaryExpr>(std::move(varZ), std::move(num5));
   expectedStmts.push_back(std::make_unique<VarDeclarationStmt>(
-      "result", std::move(minus), ASTType::INT));
+      "result", std::move(minus), TypeReference(ASTType::INT)));
   std::cout << "asdaddasdadas\n";
   testTree(std::move(expectedStmts), filename);
 }
