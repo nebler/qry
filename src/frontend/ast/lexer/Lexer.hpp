@@ -26,7 +26,8 @@ private:
       {'*', tok_asterix},       {'/', tok_slash},       {'^', tok_caret},
       {'~', tok_tilde},         {'!', tok_bang},        {';', tok_semicolon},
       {'(', tok_left_paren},    {')', tok_right_paren}, {'=', tok_assign},
-      {'"', tok_dobule_quotes}, {':', tok_colon}};
+      {'"', tok_dobule_quotes}, {':', tok_colon},       {'{', tok_left_bracket},
+      {'}', tok_right_bracket}};
   Token findKeyWordToken(const char *key);
   Token findCharToken(char key);
 

@@ -3,3 +3,5 @@ struct Foo {
     b: bool,
     c: string
 }
+
+var foofer: Foo = Foo(1, true, "hello world")

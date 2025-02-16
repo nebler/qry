@@ -355,13 +355,13 @@ struct VarDeclarationStmt : Stmt {
 
 struct StructDeclarationStmt : Stmt {
   std::string name;
-  std::map<std::string, ASTType> members;
+  std::map<std::string, TypeReference> members;
 
   // We don't need type since a struct is its own type
   // The type will be created in the type system based on this declaration
 
   StructDeclarationStmt(std::string name,
-                        std::map<std::string, ASTType> members)
+                        std::map<std::string, TypeReference> members)
       : name(std::move(name)), members(std::move(members)) {}
 
   void accept(ASTVisitor &visitor) override;
@@ -379,7 +379,7 @@ struct StructDeclarationStmt : Stmt {
       if (!first) {
         result += ",\n";
       }
-      result += "    " + fieldName + ": " + toString(fieldType);
+      result += "    " + fieldName + ": " + fieldType.toString();
       first = false;
     }
 

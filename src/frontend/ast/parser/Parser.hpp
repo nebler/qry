@@ -5,8 +5,11 @@
 #include "frontend/ast/parser/ast/ASTNode.hpp"
 #include "frontend/ast/parser/parselets/infix/InfixParselet.hpp"
 #include "frontend/ast/parser/parselets/prefix/PrefixParselet.hpp"
+#include "frontend/ast/parser/types/ASTType.hpp"
 #include "frontend/ast/parser/types/TokenToConverter.hpp"
 #include <cstddef>
+#include <iostream>
+#include <map>
 #include <memory>
 #include <unordered_map>
 
@@ -79,17 +82,38 @@ public:
     }
 
     if (currentToken.getType() == tok_struct) {
+      return parseStructDeclaration();
     }
 
     return parseExpressionStatement();
   }
 
   std::unique_ptr<Stmt> parseStructDeclaration() {
-    // get the name
+    std::cout << "hello world" << std::endl;
+    Token nameToken = consume(tok_identifier);
+    std::string name = nameToken.getText();
+    consume();
 
-    // parse the fields
+    std::map<std::string, TypeReference> fields;
+    while (currentToken.getType() != tok_right_bracket) {
+      Token token = consume(tok_identifier);
+      std::string name = token.getText();
 
-    return nullptr;
+      consume();
+
+      Token typeToken = consume();
+
+      TypeReference type = TypeReference(tokenToTypeConverter(currentToken));
+
+      if (type.basicType == ASTType::UNKNOWN) {
+        fields.insert({name, TypeReference(currentToken.getText())});
+      }
+      fields.insert({name, TypeReference(type)});
+
+      consume();
+    }
+    return std::make_unique<StructDeclarationStmt>(std::move(name),
+                                                   std::move(fields));
   }
 
   std::unique_ptr<Stmt> parseVarDeclaration() {

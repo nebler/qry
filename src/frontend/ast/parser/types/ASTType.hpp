@@ -24,11 +24,11 @@ inline std::string toString(ASTType type) {
 }
 
 class TypeReference {
+
+public:
   ASTType basicType = ASTType::UNKNOWN;
   std::optional<std::string> customTypeName;
 
-public:
-  // For basic types
   TypeReference(ASTType type) : basicType(type) {}
 
   TypeReference(std::string name)
@@ -36,7 +36,7 @@ public:
 
   std::string toString() const {
     if (customTypeName) {
-      return *customTypeName; // Use the actual name
+      return *customTypeName;
     }
     return ::toString(basicType);
   }

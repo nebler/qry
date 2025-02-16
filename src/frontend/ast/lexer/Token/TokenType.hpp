@@ -15,6 +15,8 @@ enum TokenType {
   tok_comma = ',',
   tok_right_paren = ')',
   tok_left_paren = '(',
+  tok_left_bracket = '{',
+  tok_right_bracket = '}',
   tok_plus = '+',
   tok_minus = '-',
   tok_slash = '/',
