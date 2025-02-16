@@ -11,6 +11,7 @@ enum TokenType {
   tok_var = -6,
   tok_int_number = -7,
   tok_bool_value = -8,
+  tok_struct = -9,
   tok_comma = ',',
   tok_right_paren = ')',
   tok_left_paren = '(',

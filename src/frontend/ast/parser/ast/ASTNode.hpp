@@ -1,6 +1,7 @@
 #pragma once
 #include "frontend/ast/lexer/token/Token.hpp"
 #include "frontend/ast/parser/types/ASTType.hpp"
+#include <map>
 #include <memory>
 #include <sstream>
 #include <string>
@@ -28,7 +29,12 @@ enum class ExprKind {
   FloatExpr
 };
 
-enum class StmtKind { VarDeclaration, Expression, ProgramNode };
+enum class StmtKind {
+  VarDeclaration,
+  Expression,
+  ProgramNode,
+  StructDeclaration
+};
 
 class ASTVisitor;
 class Token;
@@ -325,7 +331,6 @@ struct CallExpr : Expr {
   }
 };
 
-// Now for our concrete statement classes
 struct VarDeclarationStmt : Stmt {
   std::string name;
   std::unique_ptr<Expr> initializer;
@@ -342,6 +347,42 @@ struct VarDeclarationStmt : Stmt {
 
   std::string print() const override {
     return "VarDeclarationStmt: var " + name + " = " + initializer->print();
+  }
+};
+
+struct StructDeclarationStmt : Stmt {
+  std::string name;
+  std::map<std::string, ASTType> members;
+
+  // We don't need type since a struct is its own type
+  // The type will be created in the type system based on this declaration
+
+  StructDeclarationStmt(std::string name,
+                        std::map<std::string, ASTType> members)
+      : name(std::move(name)), members(std::move(members)) {}
+
+  void accept(ASTVisitor &visitor) override;
+
+  [[nodiscard]] auto kind() const -> StmtKind override {
+    return StmtKind::StructDeclaration;
+  }
+
+  std::string print() const override {
+    std::string result = "struct " + name + " {\n";
+
+    // Print each member field with proper indentation
+    bool first = true;
+    for (const auto &[fieldName, fieldType] : members) {
+      if (!first) {
+        result += ",\n";
+      }
+      result += "    " + fieldName + ": " + toString(fieldType);
+      first = false;
+    }
+
+    // Add closing brace on new line with proper alignment
+    result += "\n}";
+    return result;
   }
 };
 
@@ -386,10 +427,8 @@ public:
   // Statement visitors
   virtual void visitVarDeclarationStmt(const VarDeclarationStmt *stmt) = 0;
   virtual void visitExpressionStmt(const ExpressionStmt *stmt) = 0;
+  virtual void visitStructDeclrationStmt(const StructDeclarationStmt *stmt) = 0;
 };
-
-// Now implement the accept methods for each node type after the ASTVisitor
-// class:
 
 void IntExpr::accept(ASTVisitor &visitor) { visitor.visitIntExpr(this); }
 void FloatExpr::accept(ASTVisitor &visitor) { visitor.visitFloatExpr(this); }
@@ -438,4 +477,8 @@ void VarDeclarationStmt::accept(ASTVisitor &visitor) {
 
 void ExpressionStmt::accept(ASTVisitor &visitor) {
   visitor.visitExpressionStmt(this);
+}
+
+void StructDeclarationStmt::accept(ASTVisitor &visitor) {
+  visitor.visitStructDeclrationStmt(this);
 }

@@ -121,6 +121,10 @@ public:
     visitExpressions(expr->args);
   }
 
+  void visitStructDeclrationStmt(const StructDeclarationStmt *expr) override {
+    // todo: fix me
+  }
+
   virtual void visitAssignExpr(const AssignExpr *expr) override {
     if (auto symbolOpt = getSymbol(expr->name)) {
       Symbol *symbol = *symbolOpt;

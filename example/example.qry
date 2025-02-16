@@ -1,5 +1,5 @@
-var a: int = 1+2;
-var z: float = 1.0+2.5;
-var b: string = "Hello World";
-var c: bool = true;
-var e: bool = false;
+struct Foo {
+    a: int,
+    b: bool,
+    c: string
+}
