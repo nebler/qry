@@ -4,4 +4,11 @@ struct Foo {
     c: string
 }
 
+
 var fooNumber: int = foofer.a;
+var foo: Foo = Foo(1, true, "Hello Word");
+
+fn fooing(foo: Foo, a: int, b: string) Foo {
+    var testA = a + 1; 
+    return Foo(testA, foo.b, b);
+}

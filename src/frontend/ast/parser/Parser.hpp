@@ -136,8 +136,6 @@ public:
   std::unique_ptr<Stmt> parseExpressionStatement() {
     auto expr = parseExpression();
     consume(tok_semicolon);
-    std::cout << "parsing an expression" << std::endl;
-    std::cout << currentToken.getType() << std::endl;
     return std::make_unique<ExpressionStmt>(std::move(expr));
   }
 

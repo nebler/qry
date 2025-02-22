@@ -20,7 +20,6 @@ class MemberAcessParselet : public InfixParselet {
     }
 
     auto idExpr = static_cast<const IdentifierExpr *>(left.get());
-    std::cout << token.getType() << std::endl;
     Token name = parser.consume();
 
     return std::unique_ptr<StructAccessExpr>(
