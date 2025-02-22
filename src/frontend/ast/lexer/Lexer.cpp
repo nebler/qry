@@ -73,7 +73,7 @@ Token Lexer::gettok(bool skipAllWhiteSpaces) {
     return token;
   }
 
-  if (isdigit(lastChar) || lastChar == '.') {
+  if (isdigit(lastChar)) {
     std::string numStr;
     bool isFloat = false;
 

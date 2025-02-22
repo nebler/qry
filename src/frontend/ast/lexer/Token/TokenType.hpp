@@ -25,6 +25,7 @@ enum TokenType {
   tok_tilde = '~',
   tok_bang = '!',
   tok_colon = ':',
+  tok_point = '.',
   tok_dobule_quotes = '"',
   tok_semicolon = ';',
   tok_assign = '=',

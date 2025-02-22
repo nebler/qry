@@ -1,6 +1,7 @@
 #pragma once
 #include "frontend/ast/lexer/token/Token.hpp"
 #include "frontend/ast/parser/types/ASTType.hpp"
+#include <iostream>
 #include <map>
 #include <memory>
 #include <sstream>
@@ -26,7 +27,8 @@ enum class ExprKind {
   StringExpr,
   IntExpr,
   BoolExpr,
-  FloatExpr
+  FloatExpr,
+  StructAccessExpr
 };
 
 enum class StmtKind {
@@ -308,11 +310,10 @@ struct PrefixExpr : Expr {
 };
 
 struct CallExpr : Expr {
-  std::unique_ptr<Expr> callee;
+  std::string callee;
   std::vector<std::unique_ptr<Expr>> args;
 
-  CallExpr(std::unique_ptr<Expr> callee,
-           std::vector<std::unique_ptr<Expr>> args)
+  CallExpr(std::string callee, std::vector<std::unique_ptr<Expr>> args)
       : callee(std::move(callee)), args(std::move(args)) {
     type = ASTType::UNKNOWN;
   }
@@ -325,12 +326,32 @@ struct CallExpr : Expr {
 
   std::string print() const override {
     std::ostringstream oss;
-    oss << "CallExpr: " << callee->print() << "(";
+    oss << "CallExpr: " << callee << "(";
     for (const auto &arg : args) {
       oss << arg->print() << ", ";
     }
     return oss.str() + ")\n";
   }
+};
+
+struct StructAccessExpr : Expr {
+  std::string structName;
+  std::string fieldName;
+
+  StructAccessExpr(std::string structName, std::string fieldName)
+      : structName(std::move(structName)), fieldName(std::move(fieldName)) {
+    type = ASTType::UNKNOWN;
+  }
+
+  void accept(ASTVisitor &visitor) override;
+
+  [[nodiscard]] auto kind() const -> ExprKind override {
+    return ExprKind::StructAccessExpr;
+  }
+
+  std::string print() const override {
+    return "StructAccessExpr:" + structName + " field: " + fieldName;
+  };
 };
 
 struct VarDeclarationStmt : Stmt {
@@ -431,6 +452,7 @@ public:
   virtual void visitVarDeclarationStmt(const VarDeclarationStmt *stmt) = 0;
   virtual void visitExpressionStmt(const ExpressionStmt *stmt) = 0;
   virtual void visitStructDeclrationStmt(const StructDeclarationStmt *stmt) = 0;
+  virtual void visitStructAccessExpr(const StructAccessExpr *expr) = 0;
 };
 
 void IntExpr::accept(ASTVisitor &visitor) { visitor.visitIntExpr(this); }
@@ -484,4 +506,8 @@ void ExpressionStmt::accept(ASTVisitor &visitor) {
 
 void StructDeclarationStmt::accept(ASTVisitor &visitor) {
   visitor.visitStructDeclrationStmt(this);
+}
+
+void StructAccessExpr::accept(ASTVisitor &visitor) {
+  visitor.visitStructAccessExpr(this);
 }

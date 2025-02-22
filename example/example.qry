@@ -4,4 +4,4 @@ struct Foo {
     c: string
 }
 
-var foofer: Foo = Foo(1, true, "hello world")
+var fooNumber: int = foofer.a;

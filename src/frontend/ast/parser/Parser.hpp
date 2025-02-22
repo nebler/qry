@@ -48,6 +48,7 @@ public:
   std::unique_ptr<Expr> parseExpression(int precedence) {
     Token token = consume();
     auto it = prefixParselets.find(token.getType());
+
     PrefixParselet *prefix = it->second.get();
 
     std::unique_ptr<Expr> left = prefix->parse(*this, token);
@@ -89,7 +90,6 @@ public:
   }
 
   std::unique_ptr<Stmt> parseStructDeclaration() {
-    std::cout << "hello world" << std::endl;
     Token nameToken = consume(tok_identifier);
     std::string name = nameToken.getText();
     consume();
@@ -112,6 +112,7 @@ public:
 
       consume();
     }
+    consume();
     return std::make_unique<StructDeclarationStmt>(std::move(name),
                                                    std::move(fields));
   }
@@ -135,6 +136,8 @@ public:
   std::unique_ptr<Stmt> parseExpressionStatement() {
     auto expr = parseExpression();
     consume(tok_semicolon);
+    std::cout << "parsing an expression" << std::endl;
+    std::cout << currentToken.getType() << std::endl;
     return std::make_unique<ExpressionStmt>(std::move(expr));
   }
 

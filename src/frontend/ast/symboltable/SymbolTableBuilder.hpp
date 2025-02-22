@@ -105,6 +105,10 @@ public:
     // Nothing to do for string
   }
 
+  void visitStructAccessExpr(const StructAccessExpr *expr) override {
+    // Nothing to do for string
+  }
+
   void visitBoolExpr(const BoolExpr *exprs) override {
     // Nothing to do for bool
   }
@@ -114,10 +118,9 @@ public:
   }
 
   void visitCallExpr(const CallExpr *expr) override {
-    // Visit the function being called
-    expr->callee->accept(*this);
 
-    // Visit all arguments
+    // todo: add funciton reference to a table or something
+    //  Visit all arguments
     visitExpressions(expr->args);
   }
 

@@ -3,7 +3,6 @@
 #include <string>
 enum ASTType { INT, FLOAT, STRING, BOOL, UNKNOWN, STRUCT };
 
-// We can add this as a standalone function that works with the enum
 inline std::string toString(ASTType type) {
   switch (type) {
   case ASTType::INT:

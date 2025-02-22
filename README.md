@@ -22,3 +22,6 @@ var a = 1 + 1;
 var b = a + 1;
 
 The symbol table will have the usage recorded but only that a is being used as an identifier expression not that its part of a var decleration.
+
+
+var foofer2: Foo(Foo.a + 1, Foo.b == true, Foo.c);
