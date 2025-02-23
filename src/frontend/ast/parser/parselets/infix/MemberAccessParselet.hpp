@@ -2,14 +2,12 @@
 /**
  * Parselet to parse a function call like "a(b, c, d)".
  */
-#include "frontend/ast/lexer/token/TokenType.hpp"
 #include "frontend/ast/parser/Parser.hpp"
 
 #include "frontend/ast/parser/Precedence.hpp"
 #include "frontend/ast/parser/ast/ASTNode.hpp"
 #include "frontend/ast/parser/parselets/infix/InfixParselet.hpp"
 #include <stdexcept>
-#include <utility>
 
 class MemberAcessParselet : public InfixParselet {
   virtual std::unique_ptr<Expr> parse(Parser &parser,

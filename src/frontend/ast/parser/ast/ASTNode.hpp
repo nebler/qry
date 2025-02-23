@@ -35,7 +35,10 @@ enum class StmtKind {
   VarDeclaration,
   Expression,
   ProgramNode,
-  StructDeclaration
+  StructDeclaration,
+  FunctionDeclaration,
+  Block,
+  Return
 };
 
 class ASTVisitor;
@@ -174,30 +177,6 @@ struct AssignExpr : Expr {
 
   std::string print() const override {
     return "AssignExpr: assign " + name + " to " + right->print() + "\n";
-  }
-};
-
-struct FunctionExpr : Expr {
-  std::string name;
-  std::vector<std::unique_ptr<Expr>> args;
-  FunctionExpr(std::string name, std::vector<std::unique_ptr<Expr>> args)
-      : name(std::move(name)), args(std::move(args)) {
-    type = ASTType::UNKNOWN;
-  }
-
-  [[nodiscard]] auto kind() const -> ExprKind override {
-    return ExprKind::Function;
-  }
-
-  void accept(ASTVisitor &visitor) override;
-
-  std::string print() const override {
-    std::ostringstream oss;
-    oss << "FunctionExpr: call " << name << " with ";
-    for (const auto &arg : args) {
-      oss << arg->print() << ", ";
-    }
-    return oss.str() + "\n";
   }
 };
 
@@ -374,6 +353,67 @@ struct VarDeclarationStmt : Stmt {
   }
 };
 
+struct BlockStmt : Stmt {
+  std::vector<std::unique_ptr<Stmt>> statements; // All statements in this block
+  BlockStmt(std::vector<std::unique_ptr<Stmt>> statements)
+      : statements(std::move(statements)) {}
+  void accept(ASTVisitor &visitor) override;
+
+  StmtKind kind() const override { return StmtKind::Block; }
+
+  std::string print() const override {
+    std::string result = "{\n";
+    for (const auto &stmt : statements) {
+      result += "  " + stmt->print() + "\n";
+    }
+    result += "}";
+    return result;
+  }
+};
+
+struct FunctionDeclarationStmt : Stmt {
+  std::string name;
+  std::map<std::string, TypeReference> parameters;
+  std::unique_ptr<BlockStmt> body;
+  TypeReference type;
+
+  void accept(ASTVisitor &visitor) override;
+
+  FunctionDeclarationStmt(std::string name,
+                          std::map<std::string, TypeReference> parameters,
+                          TypeReference type, std::unique_ptr<BlockStmt> body)
+      : name(std::move(name)), parameters(std::move(parameters)), type(type),
+        body(std::move(body)) {}
+
+  [[nodiscard]] auto kind() const -> StmtKind override {
+    return StmtKind::FunctionDeclaration;
+  }
+
+  std::string print() const override {
+    return "Funciton Decleration: fn " + name + " = ";
+  }
+};
+
+struct ReturnStmt : Stmt {
+  std::unique_ptr<Expr> returnValue; // The value being returned (optional)
+
+  explicit ReturnStmt(std::unique_ptr<Expr> value)
+      : returnValue(std::move(value)) {}
+
+  void accept(ASTVisitor &visitor) override;
+
+  [[nodiscard]] auto kind() const -> StmtKind override {
+    return StmtKind::Return;
+  }
+
+  std::string print() const override {
+    if (returnValue) {
+      return "ReturnStmt: return " + returnValue->print();
+    }
+    return "ReturnStmt: return";
+  }
+};
+
 struct StructDeclarationStmt : Stmt {
   std::string name;
   std::map<std::string, TypeReference> members;
@@ -437,7 +477,6 @@ public:
   virtual void visitBoolExpr(const BoolExpr *expr) = 0;
   virtual void visitIdentifierExpr(const IdentifierExpr *expr) = 0;
   virtual void visitAssignExpr(const AssignExpr *expr) = 0;
-  virtual void visitFunctionExpr(const FunctionExpr *expr) = 0;
   virtual void visitBinaryExpr(const BinaryExpr *expr) = 0;
   virtual void visitPlusBinaryExpr(const PlusBinaryExpr *expr) = 0;
   virtual void visitMinusBinaryExpr(const MinusBinaryExpr *expr) = 0;
@@ -452,7 +491,11 @@ public:
   virtual void visitVarDeclarationStmt(const VarDeclarationStmt *stmt) = 0;
   virtual void visitExpressionStmt(const ExpressionStmt *stmt) = 0;
   virtual void visitStructDeclrationStmt(const StructDeclarationStmt *stmt) = 0;
-  virtual void visitStructAccessExpr(const StructAccessExpr *expr) = 0;
+  virtual void visitStructAccessStmt(const StructAccessExpr *stmt) = 0;
+  virtual void visitBlockStmt(const BlockStmt *stmt) = 0;
+  virtual void
+  visitFunctionDeclerationStmt(const FunctionDeclarationStmt *stmt) = 0;
+  virtual void visitReturnStmt(const ReturnStmt *stmt) = 0;
 };
 
 void IntExpr::accept(ASTVisitor &visitor) { visitor.visitIntExpr(this); }
@@ -465,10 +508,6 @@ void IdentifierExpr::accept(ASTVisitor &visitor) {
 }
 
 void AssignExpr::accept(ASTVisitor &visitor) { visitor.visitAssignExpr(this); }
-
-void FunctionExpr::accept(ASTVisitor &visitor) {
-  visitor.visitFunctionExpr(this);
-}
 
 void BinaryExpr::accept(ASTVisitor &visitor) { visitor.visitBinaryExpr(this); }
 
@@ -509,5 +548,13 @@ void StructDeclarationStmt::accept(ASTVisitor &visitor) {
 }
 
 void StructAccessExpr::accept(ASTVisitor &visitor) {
-  visitor.visitStructAccessExpr(this);
+  visitor.visitStructAccessStmt(this);
 }
+
+void FunctionDeclarationStmt::accept(ASTVisitor &visitor) {
+  visitor.visitFunctionDeclerationStmt(this);
+}
+
+void BlockStmt::accept(ASTVisitor &visitor) { visitor.visitBlockStmt(this); }
+
+void ReturnStmt::accept(ASTVisitor &visitor) { visitor.visitReturnStmt(this); }

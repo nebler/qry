@@ -105,7 +105,7 @@ public:
     // Nothing to do for string
   }
 
-  void visitStructAccessExpr(const StructAccessExpr *expr) override {
+  void visitStructAccessStmt(const StructAccessExpr *stmt) override {
     // Nothing to do for string
   }
 
@@ -124,7 +124,20 @@ public:
     visitExpressions(expr->args);
   }
 
-  void visitStructDeclrationStmt(const StructDeclarationStmt *expr) override {
+  void visitStructDeclrationStmt(const StructDeclarationStmt *stmt) override {
+    // todo: fix me
+  }
+
+  void
+  visitFunctionDeclerationStmt(const FunctionDeclarationStmt *stmt) override {
+    // todo: fix me
+  }
+
+  void visitBlockStmt(const BlockStmt *stmt) override {
+    // todo: fix me
+  }
+
+  void visitReturnStmt(const ReturnStmt *stmt) override {
     // todo: fix me
   }
 
@@ -136,6 +149,5 @@ public:
                                "'");
     }
   }
-  virtual void visitFunctionExpr(const FunctionExpr *expr) override {}
   virtual void visitExpressionStmt(const ExpressionStmt *stmt) override {}
 };

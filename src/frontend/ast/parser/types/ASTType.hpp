@@ -1,7 +1,7 @@
 #pragma once
 
 #include <string>
-enum ASTType { INT, FLOAT, STRING, BOOL, UNKNOWN, STRUCT };
+enum ASTType { INT, FLOAT, STRING, BOOL, UNKNOWN, STRUCT, VOID };
 
 inline std::string toString(ASTType type) {
   switch (type) {

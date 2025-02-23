@@ -20,7 +20,8 @@ private:
       {"int", tok_int_type},    {"bool", tok_bool_type},
       {"var", tok_var},         {"float", tok_float_type},
       {"str", tok_string_type}, {"true", tok_bool_value},
-      {"struct", tok_struct},   {"false", tok_bool_value}};
+      {"struct", tok_struct},   {"false", tok_bool_value},
+      {"fn", tok_fn},           {"return", tok_return}};
   static constexpr std::pair<char, TokenType> CHAR_TOKENS[] = {
       {'+', tok_plus},          {'-', tok_minus},       {',', tok_comma},
       {'*', tok_asterix},       {'/', tok_slash},       {'^', tok_caret},

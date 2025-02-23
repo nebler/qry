@@ -201,6 +201,5 @@ TEST(Parser, MultipleDeclarations) {
       std::make_unique<MinusBinaryExpr>(std::move(varZ), std::move(num5));
   expectedStmts.push_back(std::make_unique<VarDeclarationStmt>(
       "result", std::move(minus), TypeReference(ASTType::INT)));
-  std::cout << "asdaddasdadas\n";
   testTree(std::move(expectedStmts), filename);
 }

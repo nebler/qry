@@ -53,6 +53,7 @@ public:
 
     std::unique_ptr<Expr> left = prefix->parse(*this, token);
     while (precedence < getPrecedence()) {
+
       token = consume();
       InfixParselet *infix = infixParselets[token.getType()].get();
       left = infix->parse(*this, std::move(left), token);
@@ -72,6 +73,7 @@ public:
       if (lookAhead().getType() == tok_eof) {
         break;
       }
+      consume();
     }
     return std::make_unique<ProgramNode>(std::move(statements));
   }
@@ -79,14 +81,84 @@ public:
   std::unique_ptr<Stmt> parseStatement() {
 
     if (currentToken.getType() == tok_var) {
+
       return parseVarDeclaration();
+    }
+
+    if (currentToken.getType() == tok_return) {
+      return parseReturnStatement();
     }
 
     if (currentToken.getType() == tok_struct) {
       return parseStructDeclaration();
     }
 
+    if (currentToken.getType() == tok_fn) {
+      return parseFunctionDeclaration();
+    }
+
     return parseExpressionStatement();
+  }
+
+  std::unique_ptr<Stmt> parseFunctionDeclaration() {
+    Token name = consume();
+
+    consume(); // (
+
+    std::map<std::string, TypeReference> parameters;
+
+    Token token =
+        consume(); // consume next one there might not be any arguments
+
+    // todo: super ugly code pls refactor me
+    while (token.getType() != tok_right_paren) {
+      consume();                   // :
+      Token typeToken = consume(); // type
+      TypeReference type = TypeReference(tokenToTypeConverter(typeToken));
+      parameters.insert({token.getText(), type});
+      token = consume();
+      if (token.getType() == tok_comma) {
+        token = consume();
+      }
+    }
+    consume(); // )
+
+    TypeReference type = token.getType() != tok_left_bracket
+                             ? TypeReference(tokenToTypeConverter(token))
+                             : TypeReference(ASTType::VOID);
+
+    if (token.getType() != tok_left_bracket) {
+      consume(); // if type is present eat it
+      std::cout << currentToken.getType() << currentToken.getText()
+                << std::endl;
+    }
+
+    std::vector<std::unique_ptr<Stmt>> stmts;
+    consume();
+    while (currentToken.getType() != tok_right_bracket) {
+
+      std::unique_ptr<Stmt> stmt = parseStatement();
+      stmts.push_back(std::move(stmt));
+      consume();
+    }
+    std::unique_ptr<BlockStmt> body =
+        std::make_unique<BlockStmt>(std::move(stmts));
+
+    // std::string name;
+    // std::map<ASTType, std::string> parameter;
+    // std::unique_ptr<BlockStmt> body;
+    // TypeReference type;
+
+    return std::make_unique<FunctionDeclarationStmt>(
+        std::move(name.getText()), std::move(parameters), std::move(type),
+        std::move(body));
+  }
+
+  std::unique_ptr<Stmt> parseReturnStatement() {
+    std::unique_ptr<Expr> expression = parseExpression();
+    consume();
+
+    return std::make_unique<ReturnStmt>(std::move(expression));
   }
 
   std::unique_ptr<Stmt> parseStructDeclaration() {
@@ -128,7 +200,7 @@ public:
     consume(tok_assign);
 
     auto initializer = parseExpression();
-    consume(tok_semicolon);
+
     return std::make_unique<VarDeclarationStmt>(std::move(name),
                                                 std::move(initializer), type);
   }
@@ -147,7 +219,8 @@ public:
 
     // todo: fix this
     //  if (token != expected) {
-    //    throw ParseException("Expected token " + tokentype::toString(expected)
+    //    throw ParseException("Expected token " +
+    //    tokentype::toString(expected)
     //    +
     //                         " and found " +
     //                         tokentype::toString(token.getType()));
