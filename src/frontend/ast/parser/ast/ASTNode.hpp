@@ -390,7 +390,29 @@ struct FunctionDeclarationStmt : Stmt {
   }
 
   std::string print() const override {
-    return "Funciton Decleration: fn " + name + " = ";
+    std::string result = "Function Declaration: fn " + name + "(";
+
+    // Print parameters with their types
+    bool first = true;
+    for (const auto &[paramName, paramType] : parameters) {
+      if (!first) {
+        result += ", ";
+      }
+      result += paramName + ": " + paramType.toString();
+      first = false;
+    }
+
+    // Add return type
+    result += ") -> " + type.toString() + "\n";
+
+    // Add function body if it exists
+    if (body) {
+      result += body->print();
+    } else {
+      result += "{}"; // Empty body
+    }
+
+    return result;
   }
 };
 
