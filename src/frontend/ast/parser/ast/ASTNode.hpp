@@ -28,7 +28,9 @@ enum class ExprKind {
   IntExpr,
   BoolExpr,
   FloatExpr,
-  StructAccessExpr
+  StructAccessExpr,
+  IfExpr,
+  ArrayExpr
 };
 
 enum class StmtKind {
@@ -488,6 +490,112 @@ struct ExpressionStmt : Stmt {
     return "ExpressionStmt: " + expression->print();
   }
 };
+
+struct IfExpr : Expr {
+  std::unique_ptr<Expr> condition;
+  std::unique_ptr<BlockStmt> block;
+
+  IfExpr(std::unique_ptr<Expr> condition, std::unique_ptr<BlockStmt> block)
+      : condition(std::move(condition)), block(std::move(block)) {
+    type = ASTType::BOOL;
+  };
+
+  [[nodiscard]] auto kind() const -> ExprKind override {
+    return ExprKind::IfExpr;
+  }
+
+  void accept(ASTVisitor &visitor) override;
+
+  std::string print() const override {
+    return "If Expr: Condition" + condition->print() + "\n" + block->print() +
+           "\n";
+  }
+};
+
+struct ArrayExpr : Expr {
+  std::vector<std::unique_ptr<Expr>> elements;
+
+  explicit ArrayExpr(std::vector<std::unique_ptr<Expr>> elems)
+      : elements(std::move(elems)) {
+    // Type will need to be inferred from elements
+    type = TypeReference(ASTType::ARRAY);
+  }
+
+  [[nodiscard]] auto kind() const -> ExprKind override {
+    return ExprKind::ArrayExpr;
+  }
+
+  void accept(ASTVisitor &visitor) override;
+
+  std::string print() const override {
+    std::string result = "ArrayExpr: [";
+    for (size_t i = 0; i < elements.size(); ++i) {
+      result += elements[i]->print();
+      if (i < elements.size() - 1)
+        result += ", ";
+    }
+    return result + "]\n";
+  }
+};
+
+struct ForLoopStmt : Stmt {
+  std::unique_ptr<BlockStmt> body;
+
+  explicit ForLoopStmt(std::unique_ptr<BlockStmt> body)
+      : body(std::move(body)) {}
+
+  [[nodiscard]] auto kind() const -> StmtKind override {
+    return StmtKind::ForLoop;
+  }
+
+  // Common interface, override in subclasses
+  virtual ForLoopType getLoopType() const = 0;
+};
+
+// Simple condition-only loop (Go-style)
+struct ConditionForLoopStmt : ForLoopStmt {
+  std::unique_ptr<Expr> condition;
+
+  ConditionForLoopStmt(std::unique_ptr<Expr> condition,
+                       std::unique_ptr<BlockStmt> body)
+      : ForLoopStmt(std::move(body)), condition(std::move(condition)) {}
+
+  void accept(ASTVisitor &visitor) override {
+    visitor.visitConditionForLoopStmt(this);
+  }
+
+  ForLoopType getLoopType() const override { return ForLoopType::Condition; }
+
+  std::string print() const override {
+    return "ConditionForLoop: for " + condition->print() + " " + body->print();
+  }
+};
+
+// Traditional C-style for loop
+struct TraditionalForLoopStmt : ForLoopStmt {
+  std::unique_ptr<Stmt> init;
+  std::unique_ptr<Expr> condition;
+  std::unique_ptr<Expr> update;
+
+  TraditionalForLoopStmt(std::unique_ptr<Stmt> init,
+                         std::unique_ptr<Expr> condition,
+                         std::unique_ptr<Expr> update,
+                         std::unique_ptr<BlockStmt> body)
+      : ForLoopStmt(std::move(body)), init(std::move(init)),
+        condition(std::move(condition)), update(std::move(update)) {}
+
+  void accept(ASTVisitor &visitor) override {
+    visitor.visitTraditionalForLoopStmt(this);
+  }
+
+  ForLoopType getLoopType() const override { return ForLoopType::Traditional; }
+
+  std::string print() const override {
+    return "TraditionalForLoop: for (" + init->print() + "; " +
+           condition->print() + "; " + update->print() + ") " + body->print();
+  }
+};
+
 class ASTVisitor {
 public:
   virtual ~ASTVisitor() = default;
@@ -508,6 +616,8 @@ public:
   visitMultiplicationBinaryExpr(const MultiplicationBinaryExpr *expr) = 0;
   virtual void visitPrefixExpr(const PrefixExpr *expr) = 0;
   virtual void visitCallExpr(const CallExpr *expr) = 0;
+  virtual void visitIfExpr(const IfExpr *expr) = 0;
+  virtual void visitArrayExpr(const ArrayExpr *expr) = 0;
 
   // Statement visitors
   virtual void visitVarDeclarationStmt(const VarDeclarationStmt *stmt) = 0;
@@ -580,3 +690,5 @@ void FunctionDeclarationStmt::accept(ASTVisitor &visitor) {
 void BlockStmt::accept(ASTVisitor &visitor) { visitor.visitBlockStmt(this); }
 
 void ReturnStmt::accept(ASTVisitor &visitor) { visitor.visitReturnStmt(this); }
+void IfExpr::accept(ASTVisitor &visitor) { visitor.visitIfExpr(this); }
+void ArrayExpr::accept(ASTVisitor &visitor) { visitor.visitArrayExpr(this); }

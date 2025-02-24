@@ -15,13 +15,11 @@ class CallParselet : public InfixParselet {
   virtual std::unique_ptr<Expr> parse(Parser &parser,
                                       std::unique_ptr<Expr> left,
                                       Token /*token*/) const override {
-    std::cout << "lalal" << std::endl;
     if (left->kind() != ExprKind::Identifier) {
       throw std::runtime_error("we expected an identifer expression here");
     }
     auto idExpr = static_cast<const IdentifierExpr *>(left.get());
     std::vector<std::unique_ptr<Expr>> args;
-    // There may be no arguments at all.
     if (!parser.match(tok_right_paren)) {
       do {
         args.push_back(parser.parseExpression());
